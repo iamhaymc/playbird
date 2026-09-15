@@ -1,0 +1,47 @@
+# fly99 airframe: Wasp V2 - interceptor; fast, armed, thin hold
+name: Wasp V2
+id: wasp
+kind: plane
+mass: 780
+wing:
+  area: 12.0
+  span: 8.2
+aero:
+  cl0: 0.2
+  cla: 5.8
+  cl_max: 1.35
+  alpha_stall_deg: 14
+  cd0: 0.024
+  k_induced: 0.07
+engine:
+  thrust: 5200
+  fuel_cap: 90
+  burn_rate: 0.02
+  spool: 1.35
+  torque: 0.90
+control:
+  pitch: 3.6
+  roll: 6.5
+  yaw: 1.6
+  vref: 62
+  # An interceptor. Light, twitchy, stressed for the turn and unforgiving of a
+  # pilot who stops flying it.
+  stability: 0.85
+  damping: 0.85
+  inertia: 0.80
+limits:
+  ceiling: 5600
+  vne: 130
+  g_limit: 5.6
+  structure: 85
+  cargo: 90
+  gear_height: 1.1
+vtol: false
+modules:
+  gun_dps: 16
+  gun_range: 950
+catalog:
+  price: 1300
+  starter: false
+  build_alloy: 24
+  build_parts: 20

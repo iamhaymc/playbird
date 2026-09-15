@@ -1,0 +1,694 @@
+# fly99 save
+version: 4
+seed: 7
+time: 28870.900003697723
+rng: [11878446355106083335, 13210652777401083018]
+player:
+  kind: 0
+  tokens: 250
+  xp: 0
+  rep: 0
+  modules: [-, -, -, -, -, -]
+next_item_uid: 2
+items:
+  - uid: 1
+    base: radar_array
+    rarity: 0
+    ilvl: 1
+    seed: 0
+    affix: []
+owned:
+  - instance: 1
+    catalog: skylark
+    status: 0
+    location: 0
+    condition: 1
+    fuel: 120
+    wear: 0
+    fatigue: 0
+    ammo: 0
+    cm: 0
+    fitted: [0, 0, 0, 0, 0, 0]
+active_airframe: 0
+next_airframe_instance: 2
+craft:
+  pos: [-453.164, -125.759, 63.134]
+  vel: [0.000, 0.000, 0.000]
+  ori: [1.000000, 0.000000, 0.000000, 0.000000]
+  fuel: 120.000
+  hp: 100.000
+  wear: 0.00000
+  ammo: 0
+  cm: 0
+  on_ground: 1
+docked: 0
+autopilot: 0
+ap_target: -1
+mode: 0
+launch_site: 0
+launch_pos: [-453.16394, -125.759171, 63.133934]
+crash_handled: 0
+ruin: 0
+operator: 0
+hulls_lost: 0
+walker:
+  pos: [-449.16394, -125.759171, 61.9339333]
+  vel: [0, 0, 0]
+  yaw: 0
+  pitch: 0
+  on_ground: 1
+rail:
+  distance: 0
+  speed: 0
+  entry: 0
+
+ground_items:
+  - pos: [-12692.0625, -1319.70227, 139.890121]
+    yaw: 1.25172842
+    source: 0
+    source_id: 0
+    uid: 1073741824
+    base: storm_nav
+    rarity: 2
+    ilvl: 45
+    seed: 89
+    affix: [4, 203, 3, -1162]
+  - pos: [10110.0166, -27251.2715, 101.750053]
+    yaw: 4.94555426
+    source: 0
+    source_id: 0
+    uid: 1073741825
+    base: extended_wings
+    rarity: 0
+    ilvl: 57
+    seed: 185
+    affix: []
+  - pos: [18464.2109, -12967.7305, 249.959518]
+    yaw: 2.30097127
+    source: 0
+    source_id: 0
+    uid: 1073741826
+    base: drop_tanks
+    rarity: 0
+    ilvl: 47
+    seed: 201
+    affix: []
+  - pos: [17357.7734, -1631.59851, 657.193359]
+    yaw: 3.25817537
+    source: 0
+    source_id: 0
+    uid: 1073741827
+    base: storm_nav
+    rarity: 3
+    ilvl: 63
+    seed: 35
+    affix: [3, -1115, 2, -680, 4, 520]
+  - pos: [-25303.6016, 4248.59961, 12.1864052]
+    yaw: 2.31937909
+    source: 0
+    source_id: 0
+    uid: 1073741828
+    base: armor_plating
+    rarity: 1
+    ilvl: 73
+    seed: 70
+    affix: [9, 65]
+  - pos: [12890.5088, -23585.2324, 170.427734]
+    yaw: 2.24574804
+    source: 0
+    source_id: 0
+    uid: 1073741829
+    base: drop_tanks
+    rarity: 3
+    ilvl: 65
+    seed: 164
+    affix: [8, 97, 2, -833, 5, 43]
+  - pos: [20540.6973, -26250.4102, 256.55777]
+    yaw: 0.969475865
+    source: 0
+    source_id: 0
+    uid: 1073741830
+    base: rocket_pod
+    rarity: 0
+    ilvl: 83
+    seed: 174
+    affix: []
+  - pos: [26196.0469, 3674.51733, 138.875793]
+    yaw: 4.52831125
+    source: 0
+    source_id: 0
+    uid: 1073741831
+    base: extended_wings
+    rarity: 2
+    ilvl: 54
+    seed: 151
+    affix: [17, 42, 3, -1093]
+  - pos: [-25509.3281, 15519.8242, 171.918961]
+    yaw: 0
+    source: 0
+    source_id: 0
+    uid: 1073741832
+    base: radar_array
+    rarity: 0
+    ilvl: 47
+    seed: 47
+    affix: []
+  - pos: [2828.30176, -24486.377, 198.338287]
+    yaw: 5.80458355
+    source: 0
+    source_id: 0
+    uid: 1073741833
+    base: drop_tanks
+    rarity: 1
+    ilvl: 61
+    seed: 139
+    affix: [5, 33]
+stock:
+  - site: 0
+    shelf: 0
+    uid: 1
+    base: halcyon_sprint
+    rarity: 1
+    ilvl: 20
+    seed: 120
+    affix: [3, -446]
+  - site: 0
+    shelf: 1
+    uid: 2
+    base: belly_tank
+    rarity: 2
+    ilvl: 20
+    seed: 48
+    affix: [3, -927, 4, 114]
+  - site: 0
+    shelf: 2
+    uid: 3
+    base: drop_tanks
+    rarity: 0
+    ilvl: 20
+    seed: 194
+    affix: []
+  - site: 0
+    shelf: 3
+    uid: 4
+    base: flare_pod
+    rarity: 0
+    ilvl: 20
+    seed: 194
+    affix: []
+  - site: 0
+    shelf: 4
+    uid: 5
+    base: chaff_pod
+    rarity: 0
+    ilvl: 20
+    seed: 185
+    affix: []
+  - site: 0
+    shelf: 6
+    uid: 6
+    base: armor_plating
+    rarity: 0
+    ilvl: 20
+    seed: 229
+    affix: []
+  - site: 1
+    shelf: 0
+    uid: 7
+    base: halcyon_mailbay
+    rarity: 0
+    ilvl: 36
+    seed: 177
+    affix: []
+  - site: 1
+    shelf: 1
+    uid: 8
+    base: bomb_rack
+    rarity: 0
+    ilvl: 36
+    seed: 163
+    affix: []
+  - site: 1
+    shelf: 2
+    uid: 9
+    base: light_frame
+    rarity: 0
+    ilvl: 36
+    seed: 230
+    affix: []
+  - site: 1
+    shelf: 3
+    uid: 10
+    base: bomb_rack
+    rarity: 0
+    ilvl: 36
+    seed: 86
+    affix: []
+  - site: 1
+    shelf: 6
+    uid: 11
+    base: storm_nav
+    rarity: 0
+    ilvl: 36
+    seed: 215
+    affix: []
+  - site: 2
+    shelf: 0
+    uid: 12
+    base: concord_cannon
+    rarity: 2
+    ilvl: 29
+    seed: 194
+    affix: [4, 337, 11, 139]
+  - site: 2
+    shelf: 1
+    uid: 13
+    base: flare_pod
+    rarity: 0
+    ilvl: 29
+    seed: 178
+    affix: []
+  - site: 2
+    shelf: 2
+    uid: 14
+    base: chaff_pod
+    rarity: 0
+    ilvl: 29
+    seed: 76
+    affix: []
+  - site: 2
+    shelf: 3
+    uid: 15
+    base: bomb_rack
+    rarity: 2
+    ilvl: 29
+    seed: 71
+    affix: [20, 178, 4, 426]
+  - site: 2
+    shelf: 4
+    uid: 16
+    base: stol_kit
+    rarity: 0
+    ilvl: 29
+    seed: 1
+    affix: []
+  - site: 2
+    shelf: 5
+    uid: 17
+    base: stol_kit
+    rarity: 0
+    ilvl: 29
+    seed: 22
+    affix: []
+  - site: 15
+    shelf: 0
+    uid: 18
+    base: dart_rail
+    rarity: 1
+    ilvl: 45
+    seed: 224
+    affix: [21, 100]
+  - site: 15
+    shelf: 1
+    uid: 19
+    base: rocket_pod
+    rarity: 1
+    ilvl: 45
+    seed: 96
+    affix: [20, 383]
+  - site: 15
+    shelf: 2
+    uid: 20
+    base: bomb_rack
+    rarity: 0
+    ilvl: 45
+    seed: 33
+    affix: []
+  - site: 15
+    shelf: 3
+    uid: 21
+    base: highalt_turbine
+    rarity: 1
+    ilvl: 45
+    seed: 235
+    affix: [8, 166]
+  - site: 15
+    shelf: 4
+    uid: 22
+    base: armor_plating
+    rarity: 0
+    ilvl: 45
+    seed: 135
+    affix: []
+  - site: 16
+    shelf: 0
+    uid: 23
+    base: corsair_ghost
+    rarity: 0
+    ilvl: 65
+    seed: 221
+    affix: []
+  - site: 16
+    shelf: 1
+    uid: 24
+    base: decoy_suite
+    rarity: 2
+    ilvl: 65
+    seed: 217
+    affix: [2, -688, 3, -1058]
+  - site: 16
+    shelf: 2
+    uid: 25
+    base: beam_emitter
+    rarity: 2
+    ilvl: 65
+    seed: 228
+    affix: [17, 22, 4, 473]
+  - site: 16
+    shelf: 3
+    uid: 26
+    base: dart_rail
+    rarity: 3
+    ilvl: 65
+    seed: 21
+    affix: [21, 179, 19, 69, 17, 40]
+  - site: 16
+    shelf: 4
+    uid: 27
+    base: pressure_cabin
+    rarity: 0
+    ilvl: 65
+    seed: 51
+    affix: []
+  - site: 20
+    shelf: 0
+    uid: 28
+    base: lantern_hold
+    rarity: 1
+    ilvl: 25
+    seed: 82
+    affix: [8, 132]
+  - site: 20
+    shelf: 1
+    uid: 29
+    base: chaff_pod
+    rarity: 0
+    ilvl: 25
+    seed: 24
+    affix: []
+  - site: 20
+    shelf: 2
+    uid: 30
+    base: cargo_racks
+    rarity: 1
+    ilvl: 25
+    seed: 84
+    affix: [8, 113]
+  - site: 20
+    shelf: 3
+    uid: 31
+    base: bomb_rack
+    rarity: 0
+    ilvl: 25
+    seed: 194
+    affix: []
+  - site: 20
+    shelf: 4
+    uid: 32
+    base: tuned_engine
+    rarity: 0
+    ilvl: 25
+    seed: 17
+    affix: []
+  - site: 20
+    shelf: 6
+    uid: 33
+    base: chaff_pod
+    rarity: 0
+    ilvl: 25
+    seed: 203
+    affix: []
+  - site: 23
+    shelf: 0
+    uid: 34
+    base: corsair_swarm
+    rarity: 0
+    ilvl: 47
+    seed: 215
+    affix: []
+  - site: 23
+    shelf: 1
+    uid: 35
+    base: stol_kit
+    rarity: 0
+    ilvl: 47
+    seed: 28
+    affix: []
+  - site: 23
+    shelf: 2
+    uid: 36
+    base: tuned_engine
+    rarity: 0
+    ilvl: 47
+    seed: 157
+    affix: []
+  - site: 23
+    shelf: 3
+    uid: 37
+    base: cargo_racks
+    rarity: 1
+    ilvl: 47
+    seed: 82
+    affix: [4, 169]
+  - site: 23
+    shelf: 4
+    uid: 38
+    base: drop_tanks
+    rarity: 0
+    ilvl: 47
+    seed: 3
+    affix: []
+airframe_stock:
+  - values: [1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0]
+  - values: [1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0]
+  - values: [2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [2, 2, 2, 1, 0, 0, 0, 1, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cargo: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
+contracts:
+  - state: 0
+    from: 0
+    to: 0
+    res: 0
+    qty: 0.00
+    reward: 0
+    deadline: 0.00
+    loaded: 0
+  - state: 1
+    from: 0
+    to: 11
+    res: 2
+    qty: 31.00
+    reward: 3664
+    deadline: 65332.11
+    loaded: 0
+  - state: 1
+    from: 0
+    to: 2
+    res: 4
+    qty: 4.00
+    reward: 1447
+    deadline: 43411.64
+    loaded: 0
+  - state: 0
+    from: 0
+    to: 0
+    res: 0
+    qty: 0.00
+    reward: 0
+    deadline: 0.00
+    loaded: 0
+  - state: 0
+    from: 0
+    to: 0
+    res: 0
+    qty: 0.00
+    reward: 0
+    deadline: 0.00
+    loaded: 0
+  - state: 1
+    from: 0
+    to: 3
+    res: 0
+    qty: 7.00
+    reward: 129
+    deadline: 46322.74
+    loaded: 0
+allegiance:
+  faction: 0
+  pledged_at: 28800
+  seizures: 0
+  standing: [0, 0, 0, 0, 0, 8, 0, 0]
+  relations:
+    - [1, 2, -0.474118]
+    - [1, 3, -0.148734]
+    - [1, 4, -0.400972]
+    - [1, 5, 0.056978]
+    - [1, 6, -0.250593]
+    - [1, 7, -0.406586]
+    - [2, 3, -0.473176]
+    - [2, 4, -0.513554]
+    - [2, 5, -0.328117]
+    - [2, 6, -0.078212]
+    - [2, 7, -0.451586]
+    - [3, 4, -0.250241]
+    - [3, 5, 0.304862]
+    - [3, 6, -0.047509]
+    - [3, 7, -0.573029]
+    - [4, 5, -0.191829]
+    - [4, 6, -0.510843]
+    - [4, 7, 0.357069]
+    - [5, 6, -0.180011]
+    - [5, 7, -0.309548]
+    - [6, 7, -0.381277]
+world:
+  locations:
+    - discovered: 1
+      owner: 5
+      grip: 0.72020
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [97.897, 22.244, 15.026, 18.598, 11.732, 18.759]
+    - discovered: 0
+      owner: 5
+      grip: 0.74490
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.02221, 0.00000, 0.00000]
+      stock: [105.835, 18.997, 20.229, 13.667, 13.553, 5.585]
+    - discovered: 0
+      owner: 1
+      grip: 0.82176
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [58.079, 21.410, 24.296, 21.735, 18.132, 25.143]
+    - discovered: 0
+      owner: 6
+      grip: 0.87255
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [12.215, 14.702, 25.688, 17.642, 9.450, 10.074]
+    - discovered: 0
+      owner: 5
+      grip: 0.69412
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [23.779, 7.146, 23.413, 13.149, 22.842, 15.217]
+    - discovered: 1
+      owner: 6
+      grip: 0.79843
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.03122, 0.00000]
+      stock: [14.595, 17.872, 11.662, 7.985, 7.939, 18.337]
+    - discovered: 0
+      owner: 2
+      grip: 0.66804
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [9.158, 12.448, 24.246, 17.593, 7.467, 21.039]
+    - discovered: 0
+      owner: 3
+      grip: 0.62961
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [13.129, 9.698, 52.143, 11.242, 8.165, 5.841]
+    - discovered: 0
+      owner: 3
+      grip: 0.70647
+      push: [0.00000, 0.00000, 0.00000, 0.02454, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [14.498, 9.189, 64.120, 5.739, 11.341, 18.818]
+    - discovered: 0
+      owner: 3
+      grip: 0.73118
+      push: [0.00000, 0.00000, 0.00000, 0.01248, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [19.191, 16.611, 70.897, 14.927, 13.452, 17.295]
+    - discovered: 0
+      owner: 3
+      grip: 0.87529
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [98.165, 6.535, 37.105, 25.575, 16.625, 18.488]
+    - discovered: 0
+      owner: 3
+      grip: 0.77510
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [120.602, 12.872, 53.198, 7.192, 9.422, 24.206]
+    - discovered: 0
+      owner: 7
+      grip: 0.79706
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [5.998, 14.129, 22.772, 17.473, 14.446, 22.670]
+    - discovered: 0
+      owner: 2
+      grip: 0.78608
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [18.254, 8.091, 11.642, 19.747, 10.574, 20.554]
+    - discovered: 0
+      owner: 2
+      grip: 0.59255
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [24.735, 13.291, 22.825, 14.996, 4.259, 19.895]
+    - discovered: 0
+      owner: 0
+      grip: 0.25000
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [16.126, 10.095, 20.660, 8.759, 19.796, 18.308]
+    - discovered: 0
+      owner: 2
+      grip: 0.69824
+      push: [0.00000, 0.00000, 0.03299, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [7.521, 14.857, 13.918, 8.181, 9.617, 24.416]
+    - discovered: 0
+      owner: 2
+      grip: 0.56647
+      push: [0.00000, 0.00000, 0.01395, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [14.533, 16.534, 18.321, 16.853, 21.758, 26.292]
+    - discovered: 0
+      owner: 6
+      grip: 0.69412
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [15.118, 21.318, 55.420, 10.282, 6.023, 19.158]
+    - discovered: 0
+      owner: 2
+      grip: 0.73529
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [8.008, 7.213, 7.155, 8.366, 9.571, 9.082]
+    - discovered: 0
+      owner: 4
+      grip: 0.75039
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [96.699, 6.787, 13.765, 19.359, 9.545, 16.585]
+    - discovered: 0
+      owner: 3
+      grip: 0.75863
+      push: [0.00000, 0.00000, 0.00000, 0.02486, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [65.142, 16.492, 79.322, 9.800, 8.389, 12.080]
+    - discovered: 0
+      owner: 6
+      grip: 0.69000
+      push: [0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.02953, 0.00000]
+      stock: [15.048, 15.718, 21.201, 11.649, 8.681, 16.346]
+    - discovered: 0
+      owner: 2
+      grip: 0.69000
+      push: [0.00000, 0.00000, 0.03096, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000]
+      stock: [11.249, 11.774, 16.305, 12.003, 11.186, 22.544]

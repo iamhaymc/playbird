@@ -1,0 +1,50 @@
+# fly99 airframe: Ashjack T6 - Cinder Pact salvage lifter.
+# Storm-rated out of the box and able to put down on the hillside a wreck is
+# lying on, which is the entire business model. It flies like a shed.
+name: Ashjack T6
+id: ashjack
+kind: plane
+mass: 1900
+wing:
+  area: 26.0
+  span: 15.0
+aero:
+  cl0: 0.34
+  cla: 5.2
+  cl_max: 1.85
+  alpha_stall_deg: 18
+  cd0: 0.046
+  k_induced: 0.064
+engine:
+  thrust: 7800
+  fuel_cap: 300
+  burn_rate: 0.030
+  spool: 0.80
+  torque: 0.80
+control:
+  pitch: 1.9
+  roll: 3.0
+  yaw: 1.1
+  vref: 50
+  # It flies like a shed, and the shed is deliberate: heavy damping is what
+  # keeps it flyable in the belt that everything else stays out of.
+  stability: 1.15
+  damping: 1.20
+  inertia: 1.35
+limits:
+  ceiling: 4400
+  vne: 86
+  g_limit: 4.0
+  structure: 190
+  cargo: 520
+  gear_height: 1.7
+vtol: true
+modules:
+  weather_rating: 0.8
+  armor: 0.18
+catalog:
+  price: 2900
+  faction: CNDR
+  starter: false
+  build_alloy: 44
+  build_parts: 26

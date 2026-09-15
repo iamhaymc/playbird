@@ -1,0 +1,38 @@
+# fly99 airframe: Dragonfly Q4 - the stock quad drone; lands anywhere
+name: Dragonfly Q4
+id: dragonfly
+kind: drone
+mass: 42
+wing:
+  area: 0.4          # body reference area (drag)
+  span: 1.6
+aero:
+  cd0: 0.9
+engine:
+  rotor_thrust: 1250 # N total
+  fuel_cap: 18       # MJ battery
+  burn_rate: 0.011
+  spool: 1.00
+  torque: 0.00
+control:
+  pitch: 9.0
+  roll: 9.0
+  yaw: 4.0
+  vref: 15
+  stability: 1.00
+  damping: 1.00
+  inertia: 1.00
+limits:
+  ceiling: 2600
+  vne: 42
+  g_limit: 3.2
+  structure: 60
+  cargo: 60
+  gear_height: 0.4
+vtol: true
+catalog:
+  price: 580
+  starter: true
+  build_alloy: 10
+  build_parts: 12
+  starter_spares: [radar_array]

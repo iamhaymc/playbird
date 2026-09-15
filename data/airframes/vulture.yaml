@@ -1,0 +1,50 @@
+# fly99 airframe: Vulture R3 - Corsair raider.
+# Fast, sharp and made of nothing. It catches anything it decides to catch and
+# it does not survive being caught itself, which is exactly the deal.
+name: Vulture R3
+id: vulture
+kind: plane
+mass: 690
+wing:
+  area: 11.0
+  span: 7.8
+aero:
+  cl0: 0.18
+  cla: 5.9
+  cl_max: 1.30
+  alpha_stall_deg: 13
+  cd0: 0.022
+  k_induced: 0.072
+engine:
+  thrust: 5600
+  fuel_cap: 96
+  burn_rate: 0.021
+  spool: 1.45
+  torque: 1.00
+control:
+  pitch: 4.0
+  roll: 7.2
+  yaw: 1.8
+  vref: 64
+  # Made of nothing, and stable the way a thrown knife is stable. The fastest
+  # roll rate in the game sits on the least forgiving airframe in the game.
+  stability: 0.75
+  damping: 0.75
+  inertia: 0.70
+limits:
+  ceiling: 5200
+  vne: 138
+  g_limit: 5.8
+  structure: 70
+  cargo: 120
+  gear_height: 1.0
+vtol: false
+modules:
+  gun_dps: 18
+  gun_range: 620
+catalog:
+  price: 1900
+  faction: CORS
+  starter: false
+  build_alloy: 20
+  build_parts: 24

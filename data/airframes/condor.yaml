@@ -1,0 +1,46 @@
+# fly99 airframe: Condor H4 - heavy hauler; slow, tough, deep hold
+name: Condor H4
+id: condor
+kind: plane
+mass: 2300
+wing:
+  area: 28.0
+  span: 16.5
+aero:
+  cl0: 0.35
+  cla: 5.2
+  cl_max: 1.8
+  alpha_stall_deg: 16
+  cd0: 0.038
+  k_induced: 0.06
+engine:
+  thrust: 7400
+  fuel_cap: 320
+  burn_rate: 0.03
+  spool: 0.70
+  torque: 0.85
+control:
+  pitch: 1.6
+  roll: 2.6
+  yaw: 0.9
+  vref: 55
+  # Two and a third tonnes of hold. It goes where it is pointed, and it takes
+  # a long time to be pointed somewhere else.
+  stability: 1.20
+  damping: 1.25
+  inertia: 1.45
+limits:
+  ceiling: 4000
+  vne: 88
+  g_limit: 3.8
+  structure: 170
+  cargo: 640
+  gear_height: 1.6
+vtol: false
+modules:
+  armor: 0.15        # ships with light plating
+catalog:
+  price: 1650
+  starter: false
+  build_alloy: 42
+  build_parts: 18

@@ -1,0 +1,49 @@
+# fly99 airframe: Slagback K9 - Foundry ore lifter.
+# A flying loading bay. It climbs like a warehouse and it does not care what
+# hits it, which between them describe every decision in the design.
+name: Slagback K9
+id: slagback
+kind: plane
+mass: 3100
+wing:
+  area: 34.0
+  span: 18.0
+aero:
+  cl0: 0.38
+  cla: 5.0
+  cl_max: 1.9
+  alpha_stall_deg: 17
+  cd0: 0.044
+  k_induced: 0.062
+engine:
+  thrust: 9200
+  fuel_cap: 380
+  burn_rate: 0.036
+  spool: 0.60
+  torque: 1.00
+control:
+  pitch: 1.4
+  roll: 2.2
+  yaw: 0.8
+  vref: 54
+  # A warehouse. The controls are suggestions and the spar was stressed for
+  # freight rather than for turns.
+  stability: 1.25
+  damping: 1.35
+  inertia: 1.70
+limits:
+  ceiling: 3400
+  vne: 84
+  g_limit: 3.4
+  structure: 240
+  cargo: 900
+  gear_height: 1.8
+vtol: false
+modules:
+  armor: 0.30
+catalog:
+  price: 3100
+  faction: FNDY
+  starter: false
+  build_alloy: 58
+  build_parts: 24

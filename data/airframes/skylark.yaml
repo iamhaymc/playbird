@@ -1,0 +1,45 @@
+# fly99 airframe: Skylark T1 - the stock courier plane
+name: Skylark T1
+id: skylark
+kind: plane
+mass: 950            # kg empty
+wing:
+  area: 16.0         # m^2
+  span: 11.0
+aero:
+  cl0: 0.3
+  cla: 5.5           # per rad
+  cl_max: 1.5
+  alpha_stall_deg: 15
+  cd0: 0.030
+  k_induced: 0.055
+engine:
+  thrust: 3200       # N at sea level
+  fuel_cap: 120      # kg
+  burn_rate: 0.012   # kg/s at full throttle
+  spool: 1.00
+  torque: 0.60
+control:
+  pitch: 2.4
+  roll: 4.5
+  yaw: 1.2
+  vref: 50
+  # The reference aeroplane: every handling number in the flight model is 1
+  # here, and every other airframe is described by how it differs from this one.
+  stability: 1.00
+  damping: 1.00
+  inertia: 1.00
+limits:
+  ceiling: 4500
+  vne: 95
+  g_limit: 4.4
+  structure: 100
+  cargo: 220
+  gear_height: 1.2
+vtol: false
+catalog:
+  price: 700
+  starter: true
+  build_alloy: 18
+  build_parts: 8
+  starter_spares: [radar_array]

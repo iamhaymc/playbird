@@ -1,0 +1,758 @@
+# fly99 module registry (mirrors the built-in table; edit to rebalance or
+# extend — entries here override matching ids and may add new modules).
+# slot: engine | wings | hardpoint | bay | avionics | hull
+# kind: -1 any, 0 plane, 1 drone
+# visual: FLY_VIS_* bit value (see fly_sim.h)
+# ord / cm: the name of a fly_ord_kind — rockets, bombs, seeker, dart, sam,
+#           flares, chaff (see fly_ord.c, which owns what a round of each is).
+#           `ord` makes the module a launcher and `cm` makes it a dispenser; a
+#           module carries only the envelope, the warhead scale and the
+#           magazine, so rebalancing a missile is one table and not fifteen
+#           registry rows.
+# beam_heat: >0 turns this module's gun into a beam — instant, a third the
+#           cone, and it heats the airframe at this rate per second of fire.
+# min_ilvl: lowest item level of ground or shelf this part turns up on (0 = anywhere)
+# faction: four-letter power tag (CNCD CORS FNDY LNTN HLCN CNDR MRDN) for kit a
+#          power builds for itself. Faction kit never drops and never appears on
+#          an open shelf: it is sold over one power's own counter, to somebody
+#          they think well enough of. Omit it for anything anybody can make.
+#
+# The handling block — pitch_mul, roll_mul, yaw_mul, wing_area_mul,
+# wing_span_mul, cl_max_add, alpha_stall_add_deg, stability_mul, damping_mul,
+# inertia_mul, spool_mul, torque_mul, g_limit_add — is what a fitted module
+# does to the way the aeroplane flies rather than to what it can do. Every
+# multiplier defaults to 1 when it is left out, so an entry says only what it
+# changes. These are the numbers to reach for when a build is powerful and
+# boring: a part that is worth fitting should be worth flying differently.
+modules:
+  - id: tuned_engine
+    name: Tuned Engine
+    desc: +25% thrust
+    slot: engine
+    cost: 340
+    thrust_mul: 1.25
+    mass_add: 20
+    visual: 16
+    spool_mul: 0.88
+    torque_mul: 1.25
+  - id: highalt_turbine
+    name: High-Alt Turbine
+    desc: +12% thrust, ceiling +1800 m
+    slot: engine
+    kind: 0
+    cost: 420
+    thrust_mul: 1.12
+    ceiling_add: 1800
+    mass_add: 16
+    visual: 16
+    spool_mul: 0.62
+    torque_mul: 1.15
+  - id: extended_wings
+    name: Extended Wings
+    desc: "big wing: lower stall, and a lazy roll"
+    slot: wings
+    kind: 0
+    cost: 380
+    cd0_add: -0.004
+    vne_add: -6
+    mass_add: 12
+    visual: 4
+    wing_area_mul: 1.18
+    wing_span_mul: 1.22
+    cl_max_add: 0.12
+    alpha_stall_add_deg: 1.5
+    roll_mul: 0.78
+    inertia_mul: 1.14
+    damping_mul: 1.15
+    stability_mul: 1.1
+  - id: stol_kit
+    name: STOL Kit
+    desc: "slats: a much lower stall, VTOL pads open"
+    slot: wings
+    kind: 0
+    cost: 520
+    vtol: true
+    vne_add: -10
+    cd0_add: 0.002
+    mass_add: 18
+    visual: 8
+    wing_area_mul: 1.06
+    cl_max_add: 0.45
+    alpha_stall_add_deg: 5
+    roll_mul: 0.9
+    pitch_mul: 1.1
+    damping_mul: 1.1
+    stability_mul: 1.15
+  - id: gun_pod
+    name: Gun Pod
+    desc: 14 dps autocannon, 900 m
+    slot: hardpoint
+    cost: 450
+    gun_dps: 14
+    gun_range: 900
+    mass_add: 40
+    vne_add: -3
+    cd0_add: 0.002
+    visual: 1
+    roll_mul: 0.88
+    inertia_mul: 1.15
+  - id: drop_tanks
+    name: Drop Tanks
+    desc: +50% fuel; tanks on the pylons cost the roll
+    slot: hardpoint
+    cost: 300
+    fuel_mul: 1.5
+    mass_add: 26
+    vne_add: -3
+    cd0_add: 0.002
+    visual: 2
+    roll_mul: 0.82
+    inertia_mul: 1.22
+  - id: cargo_racks
+    name: Cargo Racks
+    desc: +80% cargo capacity
+    slot: bay
+    cost: 300
+    cargo_mul: 1.8
+    mass_add: 25
+    vne_add: -2
+    cd0_add: 0.001
+    visual: 32
+    pitch_mul: 0.95
+    inertia_mul: 1.06
+  - id: belly_tank
+    name: Belly Tank
+    desc: +45% fuel capacity
+    slot: bay
+    cost: 320
+    fuel_mul: 1.45
+    mass_add: 30
+    vne_add: -2
+    cd0_add: 0.001
+    visual: 64
+    inertia_mul: 1.05
+    damping_mul: 0.95
+  - id: radar_array
+    name: Radar Array
+    desc: "9 km radar: find sites, contacts"
+    slot: avionics
+    cost: 380
+    radar_range: 9000
+    mass_add: 8
+    cd0_add: 0.001
+    visual: 128
+    yaw_mul: 0.97
+    stability_mul: 0.96
+  - id: storm_nav
+    name: Storm Nav Suite
+    desc: "weather rating 0.7: storm belt opens"
+    slot: avionics
+    cost: 420
+    weather_rating: 0.7
+    mass_add: 10
+    visual: 256
+    damping_mul: 1.15
+    stability_mul: 1.12
+  - id: armor_plating
+    name: Armor Plating
+    desc: -35% incoming, and it rolls like a barn door
+    slot: hull
+    cost: 340
+    armor: 0.35
+    mass_add: 60
+    vne_add: -4
+    cd0_add: 0.002
+    visual: 512
+    roll_mul: 0.85
+    pitch_mul: 0.9
+    inertia_mul: 1.2
+    damping_mul: 1.1
+    stability_mul: 1.05
+    g_limit_add: 0.4
+  - id: light_frame
+    name: Lightened Frame
+    desc: "-70 kg: quick, twitchy, and bends sooner"
+    slot: hull
+    cost: 360
+    mass_add: -70
+    structure_add: -15
+    vne_add: 3
+    roll_mul: 1.18
+    pitch_mul: 1.1
+    inertia_mul: 0.85
+    damping_mul: 0.88
+    stability_mul: 0.9
+    g_limit_add: -0.8
+
+  # --- the armed loadout ---------------------------------------------------
+  # Nine parts, and the ladder they climb is min_ilvl rather than price. Tokens
+  # accumulate, so price only ever delays a purchase where item level decides
+  # whether a thing is on the shelf at all. Rockets, bombs and flares sit at
+  # zero and are on the home apron from the first hour, because the day the
+  # world gets missiles in it is the day a new operator has to be able to buy
+  # the answer to one. Everything that follows a target of its own accord
+  # starts at 25 and climbs.
+  #
+  # Every dispenser is fitted where the cargo would have gone. That is the
+  # trade the whole loadout screen is made of: carrying the answer to a seeker
+  # costs you the load that pays for the trip.
+  - id: rocket_pod
+    name: Rocket Pod
+    desc: "salvo of four, 1.4 km, no second chances"
+    slot: hardpoint
+    cost: 520
+    ord: rockets
+    ord_range: 1400
+    ord_damage: 1
+    ord_ammo: 24
+    mass_add: 52
+    vne_add: -4
+    cd0_add: 0.003
+    visual: 32768
+    roll_mul: 0.86
+    inertia_mul: 1.18
+  - id: bomb_rack
+    name: Bomb Rack
+    desc: "six of them; nothing at all for a fight in the air"
+    slot: bay
+    cost: 480
+    ord: bombs
+    ord_range: 2600
+    ord_damage: 1
+    ord_ammo: 6
+    cargo_mul: 0.55
+    mass_add: 90
+    vne_add: -6
+    cd0_add: 0.003
+    visual: 65536
+    pitch_mul: 0.90
+    roll_mul: 0.88
+    inertia_mul: 1.22
+  - id: flare_pod
+    name: Flare Dispenser
+    desc: "24 flares: what a seeker looks at instead of you"
+    slot: bay
+    cost: 360
+    cm: flares
+    cm_ammo: 24
+    cargo_mul: 0.82
+    mass_add: 34
+    cd0_add: 0.001
+    visual: 262144
+    inertia_mul: 1.04
+  - id: chaff_pod
+    name: Chaff Pod
+    desc: "20 clouds: a dart's idea of a parked aeroplane"
+    slot: bay
+    cost: 420
+    cm: chaff
+    cm_ammo: 20
+    cargo_mul: 0.85
+    mass_add: 28
+    cd0_add: 0.001
+    visual: 262144
+    inertia_mul: 1.03
+    min_ilvl: 20
+  - id: seeker_rack
+    name: Seeker Rack
+    desc: "four heat seekers: slow, patient, and it follows"
+    slot: hardpoint
+    cost: 1100
+    ord: seeker
+    ord_range: 2400
+    ord_damage: 1
+    ord_ammo: 4
+    mass_add: 78
+    vne_add: -7
+    cd0_add: 0.004
+    visual: 131072
+    roll_mul: 0.80
+    pitch_mul: 0.94
+    inertia_mul: 1.26
+    min_ilvl: 25
+  - id: ecm_suite
+    name: Jamming Suite
+    desc: "a seeker's head, told the wrong thing"
+    slot: avionics
+    cost: 980
+    ecm: 0.55
+    mass_add: 26
+    cd0_add: 0.002
+    visual: 256
+    yaw_mul: 0.96
+    stability_mul: 0.95
+    min_ilvl: 35
+  - id: dart_rail
+    name: Dart Rail
+    desc: "4 km, and you have to keep looking at them"
+    slot: hardpoint
+    cost: 1850
+    ord: dart
+    ord_range: 4200
+    ord_damage: 1
+    ord_ammo: 3
+    mass_add: 96
+    vne_add: -8
+    cd0_add: 0.004
+    visual: 131072
+    roll_mul: 0.78
+    pitch_mul: 0.92
+    inertia_mul: 1.30
+    min_ilvl: 45
+  - id: decoy_suite
+    name: Countermeasure Suite
+    desc: "40 flares and a jammer under them"
+    slot: bay
+    cost: 1560
+    cm: flares
+    cm_ammo: 40
+    ecm: 0.32
+    cargo_mul: 0.7
+    mass_add: 62
+    cd0_add: 0.002
+    visual: 262144
+    inertia_mul: 1.08
+    min_ilvl: 55
+  - id: beam_emitter
+    name: Beam Emitter
+    desc: "30 dps, 700 m, instant — and it cooks the airframe"
+    slot: hardpoint
+    cost: 2400
+    gun_dps: 30
+    gun_range: 700
+    beam_heat: 0.22
+    mass_add: 120
+    vne_add: -6
+    cd0_add: 0.003
+    visual: 524288
+    roll_mul: 0.82
+    inertia_mul: 1.28
+    stability_mul: 1.04
+    min_ilvl: 65
+
+  # --- the rocket stack ---------------------------------------------------
+  # Five parts across five slots, and none of them is optional: a motor with no
+  # propellant is dead weight, propellant with no attitude control is a tumble,
+  # and a craft that reaches space without a cabin or a shield gets there and
+  # does not come back. Wanting all five at once costs the gun, the cargo racks,
+  # the armour and the avionics, so going up is a build rather than a purchase.
+  #
+  # Rocket thrust is deliberately not scaled by air density — that single
+  # difference is the whole gate on space. And min_ilvl keeps the stack on the
+  # hard half of the map: without it a base is picked uniformly and a third of
+  # every shelf in the world, including the starting apron's, is a rocket part.
+  - id: rocket_motor
+    name: Rocket Motor
+    desc: 110 kN in vacuum, 4500 m/s exhaust
+    slot: engine
+    kind: 0
+    cost: 5200
+    mass_add: 260
+    vne_add: 40
+    cd0_add: -0.004
+    rocket_thrust: 110000
+    rocket_ve: 4500
+    visual: 1024
+    min_ilvl: 50
+    torque_mul: 0.02
+    spool_mul: 1.4
+    inertia_mul: 1.1
+  - id: prop_tank
+    name: Propellant Tank
+    desc: 3600 kg of propellant; the hold goes
+    slot: bay
+    kind: 0
+    cost: 3800
+    cargo_mul: 0.1
+    mass_add: 120
+    vne_add: 30
+    cd0_add: -0.005
+    structure_add: 30
+    propellant: 3600
+    visual: 2048
+    min_ilvl: 50
+    pitch_mul: 0.85
+    roll_mul: 0.9
+    inertia_mul: 1.25
+    stability_mul: 1.1
+    g_limit_add: 1
+  - id: rcs_pack
+    name: RCS Thrusters
+    desc: "cold gas: attitude with no air"
+    slot: hardpoint
+    kind: 0
+    cost: 2600
+    mass_add: 45
+    rcs_auth: 1.1
+    visual: 4096
+    min_ilvl: 50
+    inertia_mul: 1.05
+  - id: heat_shield
+    name: Ablative Shield
+    desc: survives a re-entry, if it is shallow
+    slot: hull
+    kind: 0
+    cost: 3400
+    mass_add: 260
+    vne_add: 90
+    cd0_add: -0.006
+    structure_add: 40
+    heat_shield: 1.0
+    visual: 8192
+    min_ilvl: 50
+    roll_mul: 0.85
+    pitch_mul: 0.88
+    inertia_mul: 1.25
+    stability_mul: 1.15
+    g_limit_add: 1.2
+  - id: pressure_cabin
+    name: Pressure Cabin
+    desc: "sealed hull: a pilot can live up there"
+    slot: avionics
+    kind: 0
+    cost: 2900
+    mass_add: 95
+    vne_add: 20
+    cd0_add: -0.002
+    structure_add: 20
+    pressure: 1.0
+    visual: 16384
+    min_ilvl: 50
+    inertia_mul: 1.05
+    stability_mul: 1.05
+
+  # --- what the powers build for themselves ---
+  # Three apiece. The first two are one part that sharpens what the power
+  # already does and one that opens something it could not do before; the third
+  # (further down, with the rest of the armed kit) is how that power fights.
+  # Every one of them is worse than the open registry at something. None can be
+  # rolled: the only route to one is a counter at one of their own fields.
+  - id: concord_cannon
+    name: Writ Cannon
+    desc: "22 dps, 1200 m: the law reaches"
+    slot: hardpoint
+    cost: 1450
+    mass_add: 62
+    vne_add: -5
+    cd0_add: 0.003
+    gun_dps: 22
+    gun_range: 1200
+    visual: 9
+    faction: CNCD
+    roll_mul: 0.85
+    inertia_mul: 1.18
+    stability_mul: 1.08
+  - id: concord_writ
+    name: Registry Transponder
+    desc: "14 km radar, storm rated 0.5"
+    slot: avionics
+    cost: 1180
+    mass_add: 18
+    cd0_add: 0.001
+    weather_rating: 0.5
+    radar_range: 14000
+    visual: 384
+    faction: CNCD
+    damping_mul: 1.08
+    stability_mul: 1.08
+  - id: corsair_ripper
+    name: Ripper Battery
+    desc: "34 dps, 380 m: knife range only"
+    slot: hardpoint
+    cost: 1260
+    mass_add: 34
+    vne_add: -2
+    cd0_add: 0.002
+    gun_dps: 34
+    gun_range: 380
+    visual: 1
+    faction: CORS
+    roll_mul: 0.94
+    yaw_mul: 1.05
+    inertia_mul: 1.08
+  - id: corsair_ghost
+    name: Ghost Frame
+    desc: "-120 kg, +8 vne, nothing left to hit"
+    slot: hull
+    cost: 1320
+    mass_add: -120
+    vne_add: 8
+    cd0_add: -0.003
+    structure_add: -28
+    faction: CORS
+    roll_mul: 1.3
+    pitch_mul: 1.18
+    yaw_mul: 1.1
+    inertia_mul: 0.78
+    damping_mul: 0.78
+    stability_mul: 0.8
+    g_limit_add: -1.2
+  - id: foundry_kiln
+    name: Kiln Engine
+    desc: "+62% thrust, and it weighs what it sounds"
+    slot: engine
+    cost: 1680
+    thrust_mul: 1.62
+    fuel_mul: 0.85
+    mass_add: 190
+    vne_add: -4
+    visual: 16
+    faction: FNDY
+    spool_mul: 0.55
+    torque_mul: 1.9
+    inertia_mul: 1.12
+  - id: foundry_slab
+    name: Slab Plating
+    desc: "-55% incoming, +45 hp, and no turn left"
+    slot: hull
+    cost: 1540
+    mass_add: 155
+    vne_add: -9
+    cd0_add: 0.004
+    structure_add: 45
+    armor: 0.55
+    visual: 512
+    faction: FNDY
+    roll_mul: 0.78
+    pitch_mul: 0.86
+    inertia_mul: 1.32
+    damping_mul: 1.2
+    stability_mul: 1.12
+    g_limit_add: 0.9
+  - id: lantern_bloom
+    name: Bloom Wing
+    desc: "-22% drag, +2600 m; and it will not roll"
+    slot: wings
+    kind: 0
+    cost: 1490
+    mass_add: 26
+    ceiling_add: 2600
+    vne_add: -12
+    cd0_add: -0.009
+    visual: 12
+    faction: LNTN
+    wing_area_mul: 1.12
+    wing_span_mul: 1.35
+    cl_max_add: 0.2
+    alpha_stall_add_deg: 2
+    roll_mul: 0.62
+    inertia_mul: 1.3
+    damping_mul: 1.25
+    stability_mul: 1.2
+  - id: lantern_hold
+    name: Compact Hold
+    desc: "+2.4x cargo, and it is not fast"
+    slot: bay
+    cost: 1360
+    cargo_mul: 2.4
+    mass_add: 60
+    vne_add: -8
+    cd0_add: 0.004
+    visual: 32
+    faction: LNTN
+    pitch_mul: 0.85
+    roll_mul: 0.85
+    inertia_mul: 1.3
+    damping_mul: 1.1
+  - id: halcyon_sprint
+    name: Sprint Turbine
+    desc: "+34% thrust, +16 vne, thirsty"
+    slot: engine
+    cost: 1420
+    thrust_mul: 1.34
+    fuel_mul: 0.78
+    mass_add: 44
+    vne_add: 16
+    cd0_add: -0.002
+    visual: 16
+    faction: HLCN
+    spool_mul: 1.55
+    torque_mul: 1.25
+  - id: halcyon_mailbay
+    name: Mail Bay
+    desc: "+80% cargo and +40% fuel at once"
+    slot: bay
+    cost: 1580
+    fuel_mul: 1.40
+    cargo_mul: 1.8
+    mass_add: 52
+    vne_add: -4
+    cd0_add: 0.002
+    visual: 96
+    faction: HLCN
+    pitch_mul: 0.92
+    roll_mul: 0.92
+    inertia_mul: 1.15
+  - id: cinder_shroud
+    name: Storm Shroud
+    desc: "weather 1.0: the belt is a road"
+    slot: hull
+    cost: 1620
+    mass_add: 88
+    vne_add: -6
+    cd0_add: 0.003
+    structure_add: 25
+    weather_rating: 1.0
+    armor: 0.20
+    visual: 512
+    faction: CNDR
+    roll_mul: 0.9
+    inertia_mul: 1.12
+    damping_mul: 1.2
+    stability_mul: 1.15
+  - id: cinder_grapple
+    name: Salvage Grapple
+    desc: "VTOL, +60% cargo, ugly with it"
+    slot: wings
+    kind: 0
+    cost: 1380
+    cargo_mul: 1.6
+    mass_add: 72
+    vne_add: -18
+    cd0_add: 0.006
+    vtol: true
+    visual: 40
+    faction: CNDR
+    wing_area_mul: 1.05
+    cl_max_add: 0.15
+    roll_mul: 0.8
+    inertia_mul: 1.2
+    damping_mul: 0.9
+    stability_mul: 0.95
+  - id: meridian_choir
+    name: Choir Array
+    desc: "26 km radar; it hears the old world"
+    slot: avionics
+    cost: 1720
+    mass_add: 30
+    cd0_add: 0.002
+    radar_range: 26000
+    visual: 256
+    faction: MRDN
+    yaw_mul: 0.94
+    stability_mul: 0.92
+  - id: meridian_reliquary
+    name: Reliquary Tank
+    desc: "+95% fuel, sealed against the dark"
+    slot: hardpoint
+    cost: 1240
+    fuel_mul: 1.95
+    mass_add: 48
+    vne_add: -6
+    cd0_add: 0.003
+    visual: 2
+    faction: MRDN
+    roll_mul: 0.76
+    inertia_mul: 1.3
+
+  # --- and what each power arms itself with ---
+  # One apiece, taking the seven from two each to three, because the symmetry is
+  # the point: a power that got a missile while its neighbour did not would be a
+  # power that wins. Each is the armed expression of what that power already is.
+  - id: concord_interdictor
+    name: Interdiction Rail
+    desc: "two darts, 4.8 km: the writ reaches"
+    slot: hardpoint
+    cost: 2450
+    ord: dart
+    ord_range: 4800
+    ord_damage: 1.1
+    ord_ammo: 2
+    mass_add: 88
+    vne_add: -6
+    cd0_add: 0.003
+    visual: 131072
+    faction: CNCD
+    roll_mul: 0.82
+    inertia_mul: 1.24
+    stability_mul: 1.06
+  - id: corsair_swarm
+    name: Swarm Rack
+    desc: "36 rockets, 900 m, and no aiming to speak of"
+    slot: hardpoint
+    cost: 1340
+    ord: rockets
+    ord_range: 900
+    ord_damage: 0.86
+    ord_ammo: 36
+    mass_add: 58
+    vne_add: -3
+    cd0_add: 0.003
+    visual: 32768
+    faction: CORS
+    roll_mul: 0.90
+    yaw_mul: 1.04
+    inertia_mul: 1.14
+  - id: foundry_hammer
+    name: Hammer Rack
+    desc: "four, and each one is worth six of anybody else's"
+    slot: bay
+    cost: 1720
+    ord: bombs
+    ord_range: 2600
+    ord_damage: 1.75
+    ord_ammo: 4
+    cargo_mul: 0.4
+    mass_add: 175
+    vne_add: -11
+    cd0_add: 0.004
+    visual: 65536
+    faction: FNDY
+    pitch_mul: 0.82
+    roll_mul: 0.80
+    inertia_mul: 1.34
+    damping_mul: 1.12
+  - id: lantern_beacon
+    name: Beacon Dispenser
+    desc: "60 flares; they burn longer than anyone else's"
+    slot: bay
+    cost: 1280
+    cm: flares
+    cm_ammo: 60
+    cargo_mul: 0.8
+    mass_add: 40
+    cd0_add: 0.001
+    visual: 262144
+    faction: LNTN
+    inertia_mul: 1.05
+  - id: halcyon_ghostbox
+    name: Ghost Box
+    desc: "the strongest jammer flying, and it hears nothing"
+    slot: avionics
+    cost: 1460
+    ecm: 0.78
+    mass_add: 20
+    cd0_add: 0.001
+    visual: 256
+    faction: HLCN
+    yaw_mul: 0.98
+  - id: cinder_censer
+    name: Censer Pod
+    desc: "36 clouds of foil, thrown out into the ash"
+    slot: bay
+    cost: 1180
+    cm: chaff
+    cm_ammo: 36
+    ecm: 0.2
+    cargo_mul: 0.86
+    mass_add: 36
+    cd0_add: 0.002
+    visual: 262144
+    faction: CNDR
+    inertia_mul: 1.04
+    damping_mul: 1.06
+  - id: meridian_lumen
+    name: Lumen Emitter
+    desc: "38 dps at 820 m, and it arrives when you press it"
+    slot: hardpoint
+    cost: 2680
+    gun_dps: 38
+    gun_range: 820
+    beam_heat: 0.26
+    mass_add: 104
+    vne_add: -4
+    cd0_add: 0.002
+    visual: 524288
+    faction: MRDN
+    roll_mul: 0.86
+    inertia_mul: 1.22

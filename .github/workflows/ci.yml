@@ -1,0 +1,132 @@
+# fly99 CI.
+#
+# The file existed and was empty, so nothing anybody pushed was ever built or
+# tested anywhere but on the machine it was written on — while AGENTS.md asks
+# for the suite to be run on every change and the README describes the build as
+# a thing with workflows behind it.
+#
+# Four jobs, and each of them holds a claim the others cannot:
+#
+#   build    the portability promise — Linux, macOS and Windows, three
+#            compilers, warnings as errors, and the amalgamated single-file
+#            library compiled standalone by `--roll`.
+#   units    the correctness suite. `--no-gpu` because a hosted runner has no
+#            device, which is also the configuration the README calls the
+#            determinism reference.
+#   sanitize the same suite under ASan/UBSan, minus the rendering gallery,
+#            which is where the minutes go. This is the job that catches the
+#            reads and writes that pass silently: an out-of-bounds load in the
+#            road surveyor sat in every world generation for as long as there
+#            was nothing running it under a sanitizer.
+#   cli      the commands the README documents, end to end, including that a
+#            save this build cannot read is not quietly replaced by a new world.
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: apps/fly
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: build, and compile the amalgamation
+        shell: bash
+        run: python3 make.py --release --roll --no-gpu
+
+  units:
+    name: unit suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: correctness aspects
+        run: python3 make.py --test --no-gpu --units
+
+  sanitize:
+    name: asan + ubsan
+    runs-on: ubuntu-latest
+    # Instrumented at -O1 this is the better part of an hour: the four
+    # categories below are ~35 minutes on four cores here.
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      # Built by hand rather than through make.py: the sanitizers are a CI
+      # configuration rather than a mode the build CLI offers, and adding a
+      # flag for them would put a second way to build the same objects in
+      # front of everyone who reads it.
+      - name: build the suite with sanitizers
+        run: |
+          mkdir -p build/sanitize
+          cc -std=c99 -Wall -Wextra -Werror -I src -I ext/stb -DFLY_HAS_STB \
+             -D_POSIX_C_SOURCE=200809L -DFLY_THREADS=1 \
+             -DFLY_BUILD_DIR='"build/sanitize"' \
+             -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer \
+             -fno-sanitize-recover=all \
+             src/test.c src/fly_rng.c src/fly_img.c src/fly_font.c src/fly_yaml.c \
+             src/fly_sim.c src/fly_ord.c src/fly_faction.c src/fly_world.c \
+             src/fly_walk.c src/fly_rail.c src/fly_road.c src/fly_convoy.c \
+             src/fly_pilot.c src/fly_game.c src/fly_gpu.c src/fly_render.c \
+             src/fly_hud.c src/fly_ui.c src/fly_app.c \
+             -o build/sanitize/test -lm -pthread
+      # The rendering aspects are most of the wall clock and none of the
+      # pointer arithmetic; everything that walks an array lives in these four.
+      - name: engine, sim, world and game aspects
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: ./build/sanitize/test engine sim world game
+
+  cli:
+    name: cli
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: build
+        run: python3 make.py --no-gpu
+      - name: the documented commands
+        run: |
+          set -eux
+          B=build/linux-x64/fly99
+          $B new    --seed 7 --save run.yaml
+          $B market --save run.yaml
+          $B sim    --save run.yaml --steps 600 > telemetry.csv
+          test -s telemetry.csv
+          $B render --save run.yaml --view map --out map.png
+          # small and cheap: this is a smoke test of the command, not a hero shot
+          $B render --view play --mode mix --size 480x270 --quality low \
+                    --pt-samples 1 --ssaa 1 --out shot.png
+          test -s map.png && test -s shot.png
+          $B play   --save run.yaml --ap 0 --steps 600
+      - name: a save this build cannot read is never overwritten
+        run: |
+          set -eu
+          printf 'version: 4\nseed: 7\nowned:\n  - instance: 1\n    catalog: not_a_real_airframe\n' > broken.yaml
+          cp broken.yaml broken.expected
+          if build/linux-x64/fly99 play --save broken.yaml --steps 1; then
+            echo "expected a refusal" >&2; exit 1
+          fi
+          cmp broken.yaml broken.expected
+      # And that the assets are reachable from the repository root, which is
+      # the cwd anybody running this project from the top of the tree has: a
+      # dead search path silently costs nine of the eleven airframes.
+      - name: assets resolve from the repository root
+        working-directory: .
+        run: |
+          set -eu
+          out=$(apps/fly/build/linux-x64/fly99 market --save apps/fly/run.yaml)
+          echo "$out"
+          echo "$out" | grep -q "Antiphon V1"

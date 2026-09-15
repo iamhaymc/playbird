@@ -1,0 +1,21 @@
+[project]
+name = "fly99"
+version = "0.1.0"
+description = "A flight simulator"
+requires-python = ">=3.10"
+dependencies = [
+    "omegaconf",
+    "websockets"
+    "openai",
+    "openai-agents"
+    "pillow",
+    "mitsuba",
+    "trimesh",
+    "build123d",
+    "pydub",
+
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

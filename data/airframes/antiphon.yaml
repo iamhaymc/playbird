@@ -1,0 +1,44 @@
+# fly99 airframe: Antiphon V1 - Meridian Choir survey drone.
+# The only drone anybody builds for range. It lands on ruins nothing else can
+# reach, sees further than it can fly, and is made of very little.
+name: Antiphon V1
+id: antiphon
+kind: drone
+mass: 96
+wing:
+  area: 0.7
+  span: 3.1
+aero:
+  cd0: 0.72
+engine:
+  rotor_thrust: 2900
+  fuel_cap: 62
+  burn_rate: 0.017
+  spool: 0.90
+  torque: 0.00
+control:
+  pitch: 7.5
+  roll: 7.5
+  yaw: 3.4
+  vref: 18
+  # Made of very little and hung on long arms: it holds an attitude well and
+  # it does not change one quickly.
+  stability: 1.05
+  damping: 1.10
+  inertia: 1.15
+limits:
+  ceiling: 5200
+  vne: 54
+  g_limit: 2.8
+  structure: 95
+  cargo: 130
+  gear_height: 0.6
+vtol: true
+modules:
+  radar_range: 16000
+catalog:
+  price: 2050
+  faction: MRDN
+  starter: false
+  build_alloy: 18
+  build_parts: 20

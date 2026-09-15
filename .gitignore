@@ -1,0 +1,17 @@
+build/
+
+bin/
+obj/
+x86/
+x64/
+Win32/
+
+__pycache__/
+node_modules/
+
+.vs/
+
+*.log
+*.user.*
+
+.DS_Store

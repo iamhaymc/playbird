@@ -1,0 +1,47 @@
+# fly99 airframe: Pilgrim S2 - Lantern high-altitude glider-freighter.
+# Enormous wing, small engine, and a ceiling nothing else with a hold can
+# reach. It is slow everywhere and it is the only way some skyports are cheap.
+name: Pilgrim S2
+id: pilgrim
+kind: plane
+mass: 1150
+wing:
+  area: 32.0
+  span: 22.0
+aero:
+  cl0: 0.42
+  cla: 6.0
+  cl_max: 1.95
+  alpha_stall_deg: 17
+  cd0: 0.021
+  k_induced: 0.038
+engine:
+  thrust: 3400
+  fuel_cap: 210
+  burn_rate: 0.011
+  spool: 0.75
+  torque: 0.45
+control:
+  pitch: 2.0
+  roll: 2.8
+  yaw: 1.0
+  vref: 46
+  # Enormous wing. It is the steadiest thing in the sky and it will not roll,
+  # which are the same fact about the span said twice.
+  stability: 1.30
+  damping: 1.30
+  inertia: 1.55
+limits:
+  ceiling: 9200
+  vne: 78
+  g_limit: 3.6
+  structure: 105
+  cargo: 380
+  gear_height: 1.3
+vtol: false
+catalog:
+  price: 2600
+  faction: LNTN
+  starter: false
+  build_alloy: 30
+  build_parts: 16

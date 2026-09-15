@@ -1,0 +1,49 @@
+# fly99 airframe: Courser M5 - Halcyon mail plane.
+# Built around a schedule. Long legs, high never-exceed and a hold sized for
+# what one pilot can turn around on a pad in ninety seconds.
+name: Courser M5
+id: courser
+kind: plane
+mass: 980
+wing:
+  area: 15.0
+  span: 12.4
+aero:
+  cl0: 0.26
+  cla: 5.7
+  cl_max: 1.45
+  alpha_stall_deg: 15
+  cd0: 0.023
+  k_induced: 0.048
+engine:
+  thrust: 5000
+  fuel_cap: 260
+  burn_rate: 0.016
+  spool: 1.15
+  torque: 0.65
+control:
+  pitch: 3.0
+  roll: 5.4
+  yaw: 1.4
+  vref: 60
+  # Stable and quick to answer the throttle, because a mail run is a hundred
+  # small power changes and none of them should be an event.
+  stability: 1.05
+  damping: 1.00
+  inertia: 0.95
+limits:
+  ceiling: 6800
+  vne: 124
+  g_limit: 4.6
+  structure: 100
+  cargo: 260
+  gear_height: 1.2
+vtol: false
+modules:
+  radar_range: 9000
+catalog:
+  price: 2200
+  faction: HLCN
+  starter: false
+  build_alloy: 26
+  build_parts: 18
