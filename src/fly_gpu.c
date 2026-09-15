@@ -99,9 +99,215 @@ int fly_gpu_pass_end_img(void) { return -1; }
 #else /* ======================== enabled build ======================== */
 
 #include <stdlib.h>
+
+/* ---------------- platform GL ----------------
+ *
+ * Everything below this block is written once, against GL ES 3.1 semantics.
+ * The platform only decides where a headless context and the entry points to
+ * drive it come from.
+ *
+ * POSIX has EGL, so the system's EGL/GLES headers declare both.
+ *
+ * Windows has no EGL. The context is a WGL one on a hidden window, and every
+ * entry point past OpenGL 1.1 is loaded through wglGetProcAddress into the
+ * table below — which this file declares itself rather than including a GL
+ * SDK. Both halves of that are deliberate:
+ *   - nothing has to be installed: opengl32.dll ships with Windows, while the
+ *     toolchains setup.ps1 installs carry no GL headers to rely on;
+ *   - every name here has internal linkage, so the windowed build links.
+ *     TIGR's Windows backend defines *global* gl* function pointers of its
+ *     own and a GLES import library exports the same names as import stubs,
+ *     so the two collide at link time — the reason this platform used to be
+ *     forced onto the CPU renderer. A file-scope static collides with nothing.
+ * The shaders stay ES 3.1 on both: desktop drivers compile that dialect
+ * through ARB_ES3_1_compatibility, and fly_gpu_init proves it before it
+ * reports a GPU (see the probe there). */
+#ifdef _WIN32
+#include <stddef.h>
+#include <windows.h>
+/* windef.h defines `far`, `near`, `FAR` and `NEAR` as empty macros, and the
+ * amalgamation compiles this file together with fly_render.c, which uses all
+ * four as identifiers. Undone here for the same reason it is undone there. */
+#undef far
+#undef near
+#undef FAR
+#undef NEAR
+
+typedef unsigned int GLenum;
+typedef unsigned char GLboolean;
+typedef unsigned int GLbitfield;
+typedef signed char GLbyte;
+typedef short GLshort;
+typedef int GLint;
+typedef int GLsizei;
+typedef unsigned char GLubyte;
+typedef unsigned short GLushort;
+typedef unsigned int GLuint;
+typedef float GLfloat;
+typedef float GLclampf;
+typedef char GLchar;
+typedef ptrdiff_t GLsizeiptr;
+typedef ptrdiff_t GLintptr;
+
+/* the enumerants this module names, at their fixed values from the registry */
+#define GL_FALSE 0
+#define GL_NO_ERROR 0
+#define GL_ZERO 0
+#define GL_ONE 1
+#define GL_TRIANGLES 0x0004
+#define GL_DEPTH_BUFFER_BIT 0x00000100
+#define GL_LESS 0x0201
+#define GL_LEQUAL 0x0203
+#define GL_SRC_ALPHA 0x0302
+#define GL_ONE_MINUS_SRC_ALPHA 0x0303
+#define GL_CULL_FACE 0x0B44
+#define GL_DEPTH_TEST 0x0B71
+#define GL_BLEND 0x0BE2
+#define GL_UNPACK_ALIGNMENT 0x0CF5
+#define GL_PACK_ALIGNMENT 0x0D05
+#define GL_TEXTURE_2D 0x0DE1
+#define GL_UNSIGNED_BYTE 0x1401
+#define GL_UNSIGNED_INT 0x1405
+#define GL_FLOAT 0x1406
+#define GL_RED 0x1903
+#define GL_RGB 0x1907
+#define GL_RGBA 0x1908
+#define GL_RENDERER 0x1F01
+#define GL_NEAREST 0x2600
+#define GL_TEXTURE_MAG_FILTER 0x2800
+#define GL_TEXTURE_MIN_FILTER 0x2801
+#define GL_TEXTURE_WRAP_S 0x2802
+#define GL_TEXTURE_WRAP_T 0x2803
+#define GL_COLOR_BUFFER_BIT 0x00004000
+#define GL_RGBA8 0x8058
+#define GL_SAMPLES 0x80A9
+#define GL_CLAMP_TO_EDGE 0x812F
+#define GL_DEPTH_COMPONENT24 0x81A6
+#define GL_RG 0x8227
+#define GL_R32F 0x822E
+#define GL_RG32F 0x8230
+#define GL_TEXTURE0 0x84C0
+#define GL_RGBA32F 0x8814
+#define GL_RGB32F 0x8815
+#define GL_RGBA16F 0x881A
+#define GL_ARRAY_BUFFER 0x8892
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
+#define GL_DYNAMIC_DRAW 0x88E8
+#define GL_FRAGMENT_SHADER 0x8B30
+#define GL_VERTEX_SHADER 0x8B31
+#define GL_COMPILE_STATUS 0x8B81
+#define GL_LINK_STATUS 0x8B82
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#define GL_DRAW_FRAMEBUFFER 0x8CA9
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#define GL_FRAMEBUFFER 0x8D40
+#define GL_RENDERBUFFER 0x8D41
+#define GL_MAX_SAMPLES 0x8D57
+
+/* wglCreateContextAttribsARB's attribute names (WGL_ARB_create_context) */
+#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
+#define WGL_CONTEXT_PROFILE_MASK_ARB 0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
+
+/* Every GL entry point this module calls, in one list. The declarations, the
+ * loader and the "which one is missing" message all come out of it, so a call
+ * added downstream is a build error here rather than a null call at runtime. */
+#define FLY_GL_PROCS(X)                                                                        \
+    X(void, glActiveTexture, (GLenum texture))                                                 \
+    X(void, glAttachShader, (GLuint program, GLuint shader))                                   \
+    X(void, glBindBuffer, (GLenum target, GLuint buffer))                                      \
+    X(void, glBindFramebuffer, (GLenum target, GLuint framebuffer))                            \
+    X(void, glBindRenderbuffer, (GLenum target, GLuint renderbuffer))                          \
+    X(void, glBindTexture, (GLenum target, GLuint texture))                                    \
+    X(void, glBindVertexArray, (GLuint array))                                                 \
+    X(void, glBlendFuncSeparate, (GLenum srgb, GLenum drgb, GLenum sa, GLenum da))             \
+    X(void, glBlitFramebuffer, (GLint sx0, GLint sy0, GLint sx1, GLint sy1, GLint dx0,         \
+                                GLint dy0, GLint dx1, GLint dy1, GLbitfield mask,              \
+                                GLenum filter))                                                \
+    X(void, glBufferData, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))    \
+    X(void, glBufferSubData, (GLenum target, GLintptr offset, GLsizeiptr size,                 \
+                              const void *data))                                               \
+    X(GLenum, glCheckFramebufferStatus, (GLenum target))                                       \
+    X(void, glClear, (GLbitfield mask))                                                        \
+    X(void, glClearColor, (GLfloat r, GLfloat g, GLfloat b, GLfloat a))                        \
+    X(void, glClearDepthf, (GLfloat d))                                                        \
+    X(void, glCompileShader, (GLuint shader))                                                  \
+    X(GLuint, glCreateProgram, (void))                                                         \
+    X(GLuint, glCreateShader, (GLenum type))                                                   \
+    X(void, glDeleteBuffers, (GLsizei n, const GLuint *buffers))                               \
+    X(void, glDeleteFramebuffers, (GLsizei n, const GLuint *framebuffers))                     \
+    X(void, glDeleteProgram, (GLuint program))                                                 \
+    X(void, glDeleteRenderbuffers, (GLsizei n, const GLuint *renderbuffers))                   \
+    X(void, glDeleteShader, (GLuint shader))                                                   \
+    X(void, glDeleteTextures, (GLsizei n, const GLuint *textures))                             \
+    X(void, glDeleteVertexArrays, (GLsizei n, const GLuint *arrays))                           \
+    X(void, glDepthFunc, (GLenum func))                                                        \
+    X(void, glDisable, (GLenum cap))                                                           \
+    X(void, glDrawArrays, (GLenum mode, GLint first, GLsizei count))                           \
+    X(void, glDrawElements, (GLenum mode, GLsizei count, GLenum type, const void *indices))    \
+    X(void, glDrawElementsInstanced, (GLenum mode, GLsizei count, GLenum type,                 \
+                                      const void *indices, GLsizei ninstances))                \
+    X(void, glEnable, (GLenum cap))                                                            \
+    X(void, glEnableVertexAttribArray, (GLuint index))                                         \
+    X(void, glFramebufferRenderbuffer, (GLenum target, GLenum attachment, GLenum rbtarget,     \
+                                        GLuint renderbuffer))                                  \
+    X(void, glFramebufferTexture2D, (GLenum target, GLenum attachment, GLenum textarget,       \
+                                     GLuint texture, GLint level))                             \
+    X(void, glGenBuffers, (GLsizei n, GLuint *buffers))                                        \
+    X(void, glGenFramebuffers, (GLsizei n, GLuint *framebuffers))                              \
+    X(void, glGenRenderbuffers, (GLsizei n, GLuint *renderbuffers))                            \
+    X(void, glGenTextures, (GLsizei n, GLuint *textures))                                      \
+    X(void, glGenVertexArrays, (GLsizei n, GLuint *arrays))                                    \
+    X(GLenum, glGetError, (void))                                                              \
+    X(void, glGetIntegerv, (GLenum pname, GLint *data))                                        \
+    X(void, glGetProgramInfoLog, (GLuint program, GLsizei bufsz, GLsizei *len, GLchar *log))   \
+    X(void, glGetProgramiv, (GLuint program, GLenum pname, GLint *params))                     \
+    X(void, glGetShaderInfoLog, (GLuint shader, GLsizei bufsz, GLsizei *len, GLchar *log))     \
+    X(void, glGetShaderiv, (GLuint shader, GLenum pname, GLint *params))                       \
+    X(const GLubyte *, glGetString, (GLenum name))                                             \
+    X(GLint, glGetUniformLocation, (GLuint program, const GLchar *name))                       \
+    X(void, glLinkProgram, (GLuint program))                                                   \
+    X(void, glPixelStorei, (GLenum pname, GLint param))                                        \
+    X(void, glReadPixels, (GLint x, GLint y, GLsizei w, GLsizei h, GLenum format,              \
+                           GLenum type, void *pixels))                                         \
+    X(void, glRenderbufferStorage, (GLenum target, GLenum fmt, GLsizei w, GLsizei h))          \
+    X(void, glRenderbufferStorageMultisample, (GLenum target, GLsizei samples, GLenum fmt,     \
+                                               GLsizei w, GLsizei h))                          \
+    X(void, glShaderSource, (GLuint shader, GLsizei count, const GLchar *const *string,        \
+                             const GLint *length))                                             \
+    X(void, glTexParameteri, (GLenum target, GLenum pname, GLint param))                       \
+    X(void, glTexStorage2D, (GLenum target, GLsizei levels, GLenum fmt, GLsizei w, GLsizei h)) \
+    X(void, glTexSubImage2D, (GLenum target, GLint level, GLint xoff, GLint yoff, GLsizei w,   \
+                              GLsizei h, GLenum format, GLenum type, const void *pixels))      \
+    X(void, glUniform1f, (GLint loc, GLfloat v0))                                              \
+    X(void, glUniform1i, (GLint loc, GLint v0))                                                \
+    X(void, glUniform2f, (GLint loc, GLfloat v0, GLfloat v1))                                  \
+    X(void, glUniform2i, (GLint loc, GLint v0, GLint v1))                                      \
+    X(void, glUniform3f, (GLint loc, GLfloat v0, GLfloat v1, GLfloat v2))                      \
+    X(void, glUniform3fv, (GLint loc, GLsizei count, const GLfloat *value))                    \
+    X(void, glUniform3i, (GLint loc, GLint v0, GLint v1, GLint v2))                            \
+    X(void, glUniform4f, (GLint loc, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3))          \
+    X(void, glUniform4fv, (GLint loc, GLsizei count, const GLfloat *value))                    \
+    X(void, glUseProgram, (GLuint program))                                                    \
+    X(void, glVertexAttribDivisor, (GLuint index, GLuint divisor))                             \
+    X(void, glVertexAttribPointer, (GLuint index, GLint size, GLenum type,                     \
+                                    GLboolean normalized, GLsizei stride, const void *ptr))    \
+    X(void, glViewport, (GLint x, GLint y, GLsizei w, GLsizei h))
+
+#define FLY_GL_DECLARE(ret, name, params)      \
+    typedef ret(APIENTRY *fly__pfn_##name) params; \
+    static fly__pfn_##name name;
+FLY_GL_PROCS(FLY_GL_DECLARE)
+#undef FLY_GL_DECLARE
+
+#else
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES3/gl31.h>
+#endif
 
 #define FLY_GPU_PROG_MAX 32
 
@@ -118,8 +324,10 @@ struct fly_gpu_prog {
 static struct {
     int tried;         /* init attempted? */
     int ready;         /* context live? */
+#ifndef _WIN32
     EGLDisplay dpy;
     EGLContext ctx;
+#endif
     GLuint vao;
     /* render target, grown on demand */
     GLuint fbo, tex;
@@ -172,13 +380,170 @@ static int gpu_fail(const char *msg) {
     return -1;
 }
 
-/* ---------------- context ---------------- */
+/* ---------------- context ----------------
+ *
+ * One init and one shutdown; the platform half is gpu_context_open /
+ * gpu_context_close, and everything past the context is shared. */
 
-int fly_gpu_init(void) {
-    if (G.tried) return G.ready ? 0 : -1;
-    G.tried = 1;
-    G.err[0] = 0;
+#ifdef _WIN32
 
+/* The hidden window the WGL context lives on. A GL context on Windows needs a
+ * device context, and a device context needs a window — it is never shown, is
+ * one pixel across, and is never drawn into: every frame goes to a
+ * framebuffer object, exactly as it does on the surfaceless EGL path. */
+#define FLY_GL_WNDCLASS "fly99_gl"
+
+static struct {
+    HMODULE lib; /* opengl32.dll, for the entry points wglGetProcAddress refuses */
+    ATOM cls;    /* the window class, when this process registered it */
+    HWND wnd;
+    HDC dc;
+    HGLRC rc;
+} W;
+
+static void gpu_context_close(void);
+
+static void *wgl_proc(const char *name) {
+    /* wglGetProcAddress serves everything past OpenGL 1.1 and answers the rest
+     * with one of several falsy sentinels; those entry points are exported by
+     * opengl32.dll itself. Casting between a code pointer and void * is the
+     * shape both of these APIs are used in on Win32. */
+    PROC p = wglGetProcAddress(name);
+    if (p == NULL || p == (PROC)1 || p == (PROC)2 || p == (PROC)3 || p == (PROC)-1)
+        p = W.lib ? GetProcAddress(W.lib, name) : NULL;
+    return (void *)p;
+}
+
+static int gpu_context_open(void) {
+    PIXELFORMATDESCRIPTOR pfd;
+    WNDCLASSA wc;
+    HINSTANCE inst = GetModuleHandleA(NULL);
+    HGLRC boot;
+    const char *missing = NULL;
+    int fmt;
+
+    W.lib = LoadLibraryA("opengl32.dll");
+    if (!W.lib) return gpu_fail("no opengl32.dll");
+
+    memset(&wc, 0, sizeof wc);
+    wc.lpfnWndProc = DefWindowProcA;
+    wc.hInstance = inst;
+    wc.lpszClassName = FLY_GL_WNDCLASS;
+    W.cls = RegisterClassA(&wc);
+    if (!W.cls && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
+        gpu_context_close();
+        return gpu_fail("RegisterClass failed");
+    }
+    W.wnd = CreateWindowExA(0, FLY_GL_WNDCLASS, "fly99", WS_OVERLAPPED, 0, 0, 1, 1,
+                            NULL, NULL, inst, NULL);
+    if (!W.wnd) {
+        gpu_context_close();
+        return gpu_fail("CreateWindow failed");
+    }
+    W.dc = GetDC(W.wnd);
+    if (!W.dc) {
+        gpu_context_close();
+        return gpu_fail("GetDC failed");
+    }
+
+    memset(&pfd, 0, sizeof pfd);
+    pfd.nSize = sizeof pfd;
+    pfd.nVersion = 1;
+    /* Double-buffered although nothing is ever presented: an accelerated
+     * pixel format is what this is really asking for, and a single-buffered
+     * request is the one some drivers answer with the GDI software format —
+     * which is OpenGL 1.1, and would lose the GPU on a machine that has one. */
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 24;
+    fmt = ChoosePixelFormat(W.dc, &pfd);
+    if (!fmt || !SetPixelFormat(W.dc, fmt, &pfd)) {
+        gpu_context_close();
+        return gpu_fail("no OpenGL pixel format");
+    }
+
+    /* A context has to exist before wglGetProcAddress answers anything, so the
+     * modern one is created through an entry point only the old one can find. */
+    boot = wglCreateContext(W.dc);
+    if (!boot || !wglMakeCurrent(W.dc, boot)) {
+        if (boot) wglDeleteContext(boot);
+        gpu_context_close();
+        return gpu_fail("wglCreateContext failed");
+    }
+    {
+        typedef HGLRC(WINAPI * wgl_create_attribs)(HDC, HGLRC, const int *);
+        wgl_create_attribs create =
+            (wgl_create_attribs)wgl_proc("wglCreateContextAttribsARB");
+        /* 4.5 has ES 3.1 shader compatibility in core; 4.3 is the floor this
+         * module's own feature set sits on, and reaches the same dialect
+         * through ARB_ES3_1_compatibility. Ask for the newest first. */
+        static const int VERSION[][2] = { { 4, 5 }, { 4, 3 } };
+        size_t i;
+        for (i = 0; create && i < sizeof VERSION / sizeof *VERSION; ++i) {
+            int attr[] = { WGL_CONTEXT_MAJOR_VERSION_ARB, 0,
+                           WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+                           WGL_CONTEXT_PROFILE_MASK_ARB,
+                           WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                           0 };
+            HGLRC rc;
+            attr[1] = VERSION[i][0];
+            attr[3] = VERSION[i][1];
+            rc = create(W.dc, NULL, attr);
+            if (!rc) continue;
+            if (wglMakeCurrent(W.dc, rc)) {
+                W.rc = rc;
+                break;
+            }
+            wglDeleteContext(rc);
+        }
+    }
+    if (W.rc) {
+        wglDeleteContext(boot);
+    } else {
+        /* No wglCreateContextAttribsARB, or no core profile: keep the context
+         * that is already current. On a real driver that is the compatibility
+         * profile of its newest version, which serves; on the GDI software
+         * renderer it is OpenGL 1.1, and the load below turns it down. */
+        W.rc = boot;
+    }
+
+#define FLY_GL_LOAD(ret, name, params)                    \
+    name = (fly__pfn_##name)wgl_proc(#name);              \
+    if (!name) missing = #name;
+    FLY_GL_PROCS(FLY_GL_LOAD)
+#undef FLY_GL_LOAD
+    if (missing) {
+        char msg[160];
+        snprintf(msg, sizeof msg, "driver has no %s (OpenGL 4.3+ needed)", missing);
+        gpu_context_close();
+        return gpu_fail(msg);
+    }
+    return 0;
+}
+
+static void gpu_context_bind(void) {
+    if (wglGetCurrentContext() != W.rc) wglMakeCurrent(W.dc, W.rc);
+}
+
+static void gpu_context_close(void) {
+    if (W.rc) {
+        wglMakeCurrent(NULL, NULL);
+        wglDeleteContext(W.rc);
+    }
+    if (W.dc) ReleaseDC(W.wnd, W.dc);
+    if (W.wnd) DestroyWindow(W.wnd);
+    if (W.cls) UnregisterClassA(FLY_GL_WNDCLASS, GetModuleHandleA(NULL));
+    if (W.lib) FreeLibrary(W.lib);
+    memset(&W, 0, sizeof W);
+#define FLY_GL_CLEAR(ret, name, params) name = NULL;
+    FLY_GL_PROCS(FLY_GL_CLEAR)
+#undef FLY_GL_CLEAR
+}
+
+#else /* ---- POSIX: surfaceless EGL ---- */
+
+static int gpu_context_open(void) {
     /* Prefer Mesa's surfaceless platform so this works with no X11/Wayland
      * display at all (headless CI, containers); fall back to the default
      * display when the extension is absent. */
@@ -216,20 +581,80 @@ int fly_gpu_init(void) {
         eglTerminate(dpy);
         return gpu_fail("eglMakeCurrent(surfaceless) failed");
     }
+    G.dpy = dpy;
+    G.ctx = ctx;
+    return 0;
+}
 
-    /* ES core profiles need a bound VAO even for attribute-less draws */
+static void gpu_context_bind(void) {
+    if (eglGetCurrentContext() != G.ctx)
+        eglMakeCurrent(G.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, G.ctx);
+}
+
+static void gpu_context_close(void) {
+    eglMakeCurrent(G.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(G.dpy, G.ctx);
+    eglTerminate(G.dpy);
+    G.dpy = EGL_NO_DISPLAY;
+    G.ctx = EGL_NO_CONTEXT;
+}
+
+#endif
+
+/* "the service is usable right now", which is a different question from
+ * fly_gpu_available's "the service came up". A windowed build shares its
+ * thread with TIGR, whose backends take the thread's GL context for the
+ * length of a window update and hand it back released — wglMakeCurrent(NULL,
+ * NULL) on Windows, glXMakeCurrent(NULL, 0, 0) on X11 — so the frame after it
+ * has to take the context back. Every entry point that touches GL asks here,
+ * and it is a pointer compare when the context is already ours. */
+static int gpu_live(void) {
+    if (!G.ready) return 0;
+    gpu_context_bind();
+    return 1;
+}
+
+static GLuint compile_stage(GLenum type, const char *src, const char *tag);
+
+/* The smallest shader in the dialect every program in this build is written
+ * in. A GLES context speaks it natively; a desktop driver reaches it through
+ * ARB_ES3_1_compatibility, and one that cannot would otherwise report a live
+ * GPU and then fail every program for the rest of the run. */
+static const char *FLY_GPU_ES_PROBE =
+    "#version 310 es\n"
+    "precision highp float;\n"
+    "out vec4 o;\n"
+    "void main(){ o = vec4(1.0); }\n";
+
+int fly_gpu_init(void) {
+    if (G.tried) return gpu_live() ? 0 : -1;
+    G.tried = 1;
+    G.err[0] = 0;
+
+    if (gpu_context_open() != 0) return -1;
+
+    /* core profiles need a bound VAO even for attribute-less draws */
     glGenVertexArrays(1, &G.vao);
     glBindVertexArray(G.vao);
 
-    G.dpy = dpy;
-    G.ctx = ctx;
+    {
+        GLuint probe = compile_stage(GL_FRAGMENT_SHADER, FLY_GPU_ES_PROBE, "ES 3.1");
+        if (!probe) {
+            glDeleteVertexArrays(1, &G.vao);
+            G.vao = 0;
+            gpu_context_close();
+            return -1; /* compile_stage left the compiler's own message */
+        }
+        glDeleteShader(probe);
+    }
+
     G.ready = 1;
     return 0;
 }
 
 void fly_gpu_shutdown(void) {
     int i;
-    if (!G.ready) {
+    if (!gpu_live()) {
         G.tried = 0;
         return;
     }
@@ -262,9 +687,7 @@ void fly_gpu_shutdown(void) {
     free(G.readback);
     G.readback = NULL;
     G.readback_px = 0;
-    eglMakeCurrent(G.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    eglDestroyContext(G.dpy, G.ctx);
-    eglTerminate(G.dpy);
+    gpu_context_close();
     G.ready = 0;
     G.tried = 0;
 }
@@ -272,7 +695,7 @@ void fly_gpu_shutdown(void) {
 int fly_gpu_available(void) { return G.ready; }
 
 const char *fly_gpu_renderer(void) {
-    return G.ready ? (const char *)glGetString(GL_RENDERER) : NULL;
+    return gpu_live() ? (const char *)glGetString(GL_RENDERER) : NULL;
 }
 
 const char *fly_gpu_error(void) { return G.err; }
@@ -310,7 +733,7 @@ static GLuint compile_stage(GLenum type, const char *src, const char *tag) {
 fly_gpu_prog *fly_gpu_program(const char *frag_src) {
     int i;
     if (!frag_src) return NULL;
-    if (!G.ready && fly_gpu_init() != 0) return NULL;
+    if (!gpu_live() && fly_gpu_init() != 0) return NULL;
     for (i = 0; i < G.nprogs; ++i)
         if (!G.progs[i].key_vert && G.progs[i].key_frag == frag_src) return &G.progs[i];
     if (G.nprogs >= FLY_GPU_PROG_MAX) {
@@ -359,7 +782,7 @@ fly_gpu_prog *fly_gpu_program(const char *frag_src) {
  * token-based and would also rewrite the `->prog` member access below. */
 #define FLY_GPU_UNIFORM(P_, name, call)                    \
     do {                                                   \
-        if (!(P_) || !G.ready) return;                     \
+        if (!(P_) || !gpu_live()) return;                     \
         glUseProgram((P_)->prog);                          \
         GLint loc = glGetUniformLocation((P_)->prog, name); \
         if (loc >= 0) { call; }                            \
@@ -436,7 +859,7 @@ static int ensure_hdr_target(int w, int h) {
 
 int fly_gpu_draw_hdr(fly_gpu_prog *p, float *rgba, int w, int h) {
     if (!p || !rgba || w <= 0 || h <= 0) return gpu_fail("bad hdr draw args");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     if (ensure_hdr_target(w, h) != 0) return -1;
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     glBindFramebuffer(GL_FRAMEBUFFER, G_hdr[G_front].fbo);
@@ -466,7 +889,7 @@ int fly_gpu_set_texture(fly_gpu_prog *p, const char *name, int unit,
                         const float *data, int w, int h) {
     if (!p || !name || !data || w <= 0 || h <= 0) return gpu_fail("bad texture args");
     if (unit < 0 || unit >= FLY_GPU_TEX_MAX) return gpu_fail("texture unit out of range");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     /* Select the unit *first*: glBindTexture always acts on the active unit, so
      * creating this texture while another unit was selected would leave that
@@ -509,7 +932,7 @@ struct fly_gpu_mesh {
 
 fly_gpu_mesh *fly_gpu_mesh_create(void) {
     fly_gpu_mesh *m;
-    if (!G.ready && fly_gpu_init() != 0) return NULL;
+    if (!gpu_live() && fly_gpu_init() != 0) return NULL;
     m = (fly_gpu_mesh *)calloc(1, sizeof *m);
     if (!m) { gpu_fail("mesh alloc failed"); return NULL; }
     glGenVertexArrays(1, &m->vao);
@@ -521,7 +944,7 @@ fly_gpu_mesh *fly_gpu_mesh_create(void) {
 
 void fly_gpu_mesh_free(fly_gpu_mesh *m) {
     if (!m) return;
-    if (G.ready) {
+    if (gpu_live()) {
         if (m->vao) glDeleteVertexArrays(1, &m->vao);
         if (m->vbo) glDeleteBuffers(1, &m->vbo);
         if (m->ibo) glDeleteBuffers(1, &m->ibo);
@@ -537,7 +960,7 @@ int fly_gpu_mesh_upload(fly_gpu_mesh *m, const float *verts, int nverts,
     if (!m || !verts || !indices || !attr_sizes) return gpu_fail("bad mesh args");
     if (nverts <= 0 || nindices <= 0 || floats_per_vert <= 0 || nattrs <= 0)
         return gpu_fail("empty mesh");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     vb = nverts * floats_per_vert * (int)sizeof(float);
     ib = nindices * (int)sizeof(uint32_t);
 
@@ -579,7 +1002,7 @@ int fly_gpu_mesh_instances(fly_gpu_mesh *m, const float *data, int ninstances,
     if (!m || !data || !attr_sizes) return gpu_fail("bad instance args");
     if (ninstances <= 0 || floats_per_instance <= 0 || nattrs <= 0)
         return gpu_fail("empty instance buffer");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     bytes = ninstances * floats_per_instance * (int)sizeof(float);
 
     glBindVertexArray(m->vao);
@@ -614,7 +1037,7 @@ fly_gpu_prog *fly_gpu_program_mesh(const char *vert_src, const char *frag_src) {
     GLuint vs, fs, prog;
     GLint linked = 0;
     if (!vert_src || !frag_src) return NULL;
-    if (!G.ready && fly_gpu_init() != 0) return NULL;
+    if (!gpu_live() && fly_gpu_init() != 0) return NULL;
     for (i = 0; i < G.nprogs; ++i)
         if (G.progs[i].key_vert == vert_src && G.progs[i].key_frag == frag_src)
             return &G.progs[i];
@@ -692,7 +1115,7 @@ static int ensure_ms_target(int w, int h, int samples) {
 int fly_gpu_pass_samples(void) { return G_pass_samples; }
 
 int fly_gpu_pass_begin(int w, int h, const float *clear_rgba, int samples) {
-    if (!G.ready && fly_gpu_init() != 0) return -1;
+    if (!gpu_live() && fly_gpu_init() != 0) return -1;
     if (ensure_hdr_target(w, h) != 0) return -1;
     while (glGetError() != GL_NO_ERROR) { /* drain */ }
     G_pass_samples = samples > 1 ? ensure_ms_target(w, h, samples) : 1;
@@ -739,7 +1162,7 @@ int fly_gpu_pass_begin(int w, int h, const float *clear_rgba, int samples) {
 
 int fly_gpu_mesh_draw(fly_gpu_prog *p, fly_gpu_mesh *m) {
     if (!p || !m || m->nindices <= 0) return gpu_fail("bad mesh draw");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     glUseProgram(p->prog);
     glBindVertexArray(m->vao);
     glDrawElements(GL_TRIANGLES, m->nindices, GL_UNSIGNED_INT, 0);
@@ -750,7 +1173,7 @@ int fly_gpu_mesh_draw(fly_gpu_prog *p, fly_gpu_mesh *m) {
 int fly_gpu_mesh_draw_instanced(fly_gpu_prog *p, fly_gpu_mesh *m, int ninstances) {
     if (!p || !m || m->nindices <= 0) return gpu_fail("bad mesh draw");
     if (ninstances <= 0) return 0;   /* nothing to draw is not a failure */
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     glUseProgram(p->prog);
     glBindVertexArray(m->vao);
     glDrawElementsInstanced(GL_TRIANGLES, m->nindices, GL_UNSIGNED_INT, 0, ninstances);
@@ -762,7 +1185,7 @@ int fly_gpu_mesh_draw_instanced(fly_gpu_prog *p, fly_gpu_mesh *m, int ninstances
  * if there was any, drop the depth test and detach the depth buffer so a later
  * fullscreen pass is not tested against geometry that is no longer there. */
 static int pass_settle(void) {
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     if (G_pass_ms) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, G_ms.fbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, G_hdr[G_front].fbo);
@@ -804,7 +1227,7 @@ int fly_gpu_frame_end(void) {
 }
 
 int fly_gpu_frame_swap(void) {
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     if (!G_hdr[G_front].fbo) return gpu_fail("no frame to publish");
     G_read = G_front;
     G_front ^= 1;
@@ -815,7 +1238,7 @@ int fly_gpu_frame_bind(fly_gpu_prog *p, const char *name, int unit) {
     GLint loc;
     if (!p || !name) return gpu_fail("bad frame bind");
     if (unit < 0 || unit >= FLY_GPU_TEX_MAX) return gpu_fail("texture unit out of range");
-    if (!G.ready || !G_hdr[G_read].tex) return gpu_fail("no frame to bind");
+    if (!gpu_live() || !G_hdr[G_read].tex) return gpu_fail("no frame to bind");
     glActiveTexture(GL_TEXTURE0 + (GLenum)unit);
     glBindTexture(GL_TEXTURE_2D, G_hdr[G_read].tex);
     glUseProgram(p->prog);
@@ -825,7 +1248,7 @@ int fly_gpu_frame_bind(fly_gpu_prog *p, const char *name, int unit) {
 }
 
 int fly_gpu_frame_overlay(int blend) {
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     if (!G_hdr[G_front].fbo) return gpu_fail("no frame target");
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     glBindFramebuffer(GL_FRAMEBUFFER, G_hdr[G_front].fbo);
@@ -861,7 +1284,7 @@ int fly_gpu_frame_draw(fly_gpu_prog *p) {
 
 int fly_gpu_frame_read(float *rgba, int w, int h) {
     if (!rgba || w <= 0 || h <= 0) return gpu_fail("bad frame read");
-    if (!G.ready || !G_hdr[G_read].fbo) return gpu_fail("no frame to read");
+    if (!gpu_live() || !G_hdr[G_read].fbo) return gpu_fail("no frame to read");
     if (G_hdr[G_read].w != w || G_hdr[G_read].h != h) return gpu_fail("frame size mismatch");
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     glBindFramebuffer(GL_FRAMEBUFFER, G_hdr[G_read].fbo);
@@ -903,7 +1326,7 @@ static int ensure_target(int w, int h) {
 
 int fly_gpu_draw(fly_gpu_prog *p, fly_img *out) {
     if (!p || !out || !out->px || out->w <= 0 || out->h <= 0) return gpu_fail("bad draw args");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     int w = out->w, h = out->h;
     if (ensure_target(w, h) != 0) return -1;
 
@@ -950,7 +1373,7 @@ struct fly_gpu_img {
 
 fly_gpu_img *fly_gpu_img_create(void) {
     fly_gpu_img *im;
-    if (!G.ready && fly_gpu_init() != 0) return NULL;
+    if (!gpu_live() && fly_gpu_init() != 0) return NULL;
     im = (fly_gpu_img *)calloc(1, sizeof *im);
     if (!im) { gpu_fail("image alloc failed"); return NULL; }
     return im;
@@ -958,7 +1381,7 @@ fly_gpu_img *fly_gpu_img_create(void) {
 
 void fly_gpu_img_free(fly_gpu_img *im) {
     if (!im) return;
-    if (G.ready) {
+    if (gpu_live()) {
         if (im->fbo) glDeleteFramebuffers(1, &im->fbo);
         if (im->tex) glDeleteTextures(1, &im->tex);
     }
@@ -969,7 +1392,7 @@ int fly_gpu_img_set(fly_gpu_img *im, int w, int h, const float *px, int nc) {
     GLenum internal, format;
     if (!im || w <= 0 || h <= 0) return gpu_fail("bad image size");
     if (nc < 1 || nc > 4) return gpu_fail("bad image channel count");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     internal = nc == 1 ? GL_R32F : (nc == 2 ? GL_RG32F : (nc == 3 ? GL_RGB32F : GL_RGBA32F));
     format = nc == 1 ? GL_RED : (nc == 2 ? GL_RG : (nc == 3 ? GL_RGB : GL_RGBA));
@@ -1004,7 +1427,7 @@ int fly_gpu_img_bind(fly_gpu_prog *p, const char *name, int unit, const fly_gpu_
     GLint loc;
     if (!p || !name || !im || !im->tex) return gpu_fail("bad image bind");
     if (unit < 0 || unit >= FLY_GPU_TEX_MAX) return gpu_fail("texture unit out of range");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     glActiveTexture(GL_TEXTURE0 + (GLenum)unit);
     glBindTexture(GL_TEXTURE_2D, im->tex);
     glUseProgram(p->prog);
@@ -1033,7 +1456,7 @@ static int img_bind_fbo(fly_gpu_img *im) {
 int fly_gpu_img_draw(fly_gpu_prog *p, fly_gpu_img *im) {
     if (!p || !im || !im->tex) return gpu_fail("bad image draw");
     if (im->nc != 4) return gpu_fail("only 4-channel images are renderable");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     while (glGetError() != GL_NO_ERROR) { /* drain stale errors */ }
     if (img_bind_fbo(im) != 0) return -1;
     glViewport(0, 0, im->w, im->h);
@@ -1048,7 +1471,7 @@ int fly_gpu_img_draw(fly_gpu_prog *p, fly_gpu_img *im) {
 
 int fly_gpu_pass_begin_img(fly_gpu_img *im, int w, int h, int nc, const float *clear_rgba) {
     if (!im || w <= 0 || h <= 0) return gpu_fail("bad image pass size");
-    if (!G.ready && fly_gpu_init() != 0) return -1;
+    if (!gpu_live() && fly_gpu_init() != 0) return -1;
     if (fly_gpu_img_set(im, w, h, NULL, nc) != 0) return -1;
     while (glGetError() != GL_NO_ERROR) { /* drain */ }
     if (!G_img_depth || G_img_depth_w != w || G_img_depth_h != h) {
@@ -1083,7 +1506,7 @@ int fly_gpu_pass_begin_img(fly_gpu_img *im, int w, int h, int nc, const float *c
 
 int fly_gpu_img_read(const fly_gpu_img *im, float *px) {
     if (!im || !px || !im->tex) return gpu_fail("bad image read");
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     while (glGetError() != GL_NO_ERROR) { /* drain */ }
     if (img_bind_fbo((fly_gpu_img *)im) != 0) return -1;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -1096,7 +1519,7 @@ int fly_gpu_img_read(const fly_gpu_img *im, float *px) {
 }
 
 int fly_gpu_pass_end_img(void) {
-    if (!G.ready) return gpu_fail("no GL context");
+    if (!gpu_live()) return gpu_fail("no GL context");
     if (!G_img_pass) return gpu_fail("no image pass in flight");
     glDisable(GL_DEPTH_TEST);
     /* detach, or the next fullscreen draw into this image would be depth-tested

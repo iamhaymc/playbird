@@ -121,7 +121,9 @@ building:
 The scripts ensure Python and a C99 compiler (LLVM/Clang by default). On Linux,
 `setup.sh` also installs the X11 and OpenGL development libraries (the windowed
 backend needs X11/GL; the headless GPU renderer needs EGL and GLES, and both are
-optional — the CPU renderer is the fallback and the reference).
+optional — the CPU renderer is the fallback and the reference). Windows needs
+nothing extra for either: the GPU renderer gets its context from WGL and
+`opengl32.dll`, which ship with the system.
 
 ### Build
 

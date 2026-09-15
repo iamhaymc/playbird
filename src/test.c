@@ -12921,16 +12921,30 @@ static void test_gpu_service(void) {
         "void main(){ o = vec4(uTint * vec3(gl_FragCoord.xy / uRes, 1.0), 1.0); }\n";
     int rc = fly_gpu_init();
     if (rc != 0) {
-        /* no EGL/GLES here: the service must stay consistently unavailable */
+        /* no context to be had on this machine (no EGL device on POSIX, no
+         * driver past OpenGL 1.1 on Windows): the service must stay
+         * consistently unavailable, and must say why */
         CHECK(!fly_gpu_available());
         CHECK(fly_gpu_program(FS) == NULL);
         CHECK(fly_gpu_error() != NULL);
+        CHECK(fly_gpu_error()[0] != 0);
         printf("    gpu unavailable (%s) - CPU fallback path\n", fly_gpu_error());
         return;
     }
     CHECK(fly_gpu_available());
     CHECK(fly_gpu_renderer() != NULL);
     printf("    gpu renderer: %s\n", fly_gpu_renderer());
+
+    /* An available GPU speaks ES 3.1, whatever the context underneath is: the
+     * shaders are written in that one dialect, and a desktop driver (Windows
+     * reaches GL through WGL, not EGL) compiles them through
+     * ARB_ES3_1_compatibility. fly_gpu_init proves it before reporting a GPU,
+     * so a live service that cannot build the smallest program in the dialect
+     * is a service that would fall back to the CPU pass by pass instead. */
+    CHECK(fly_gpu_program("#version 310 es\n"
+                          "precision highp float;\n"
+                          "out vec4 o;\n"
+                          "void main(){ o = vec4(1.0); }\n") != NULL);
 
     fly_gpu_prog *p = fly_gpu_program(FS);
     CHECK(p != NULL);

@@ -42,9 +42,13 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+      # No --no-gpu: each runner builds whatever GPU support its toolchain
+      # has, so both platform halves of fly_gpu are compiled rather than
+      # assumed. The Windows runner always builds one, because WGL ships with
+      # the OS — and that is the half no other machine here can compile.
       - name: build, and compile the amalgamation
         shell: bash
-        run: python3 make.py --release --roll --no-gpu
+        run: python3 make.py --release --roll
 
   units:
     name: unit suite
