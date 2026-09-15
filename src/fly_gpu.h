@@ -1,15 +1,16 @@
 /* fly_gpu: optional OpenGL(ES)/GLSL acceleration service.
  *
- * A thin, self-contained GPU service: it owns a headless (surfaceless EGL)
- * GL context, compiles fullscreen fragment programs, and reads rendered
+ * A thin, self-contained GPU service: it owns a headless GL context — a
+ * surfaceless EGL one on POSIX, a WGL one on a hidden window on Windows, which
+ * has no EGL — compiles fullscreen fragment programs, and reads rendered
  * frames back into a fly_img. It deliberately knows nothing about the game
  * or the scene — fly_render owns the shader source and the uniforms, this
  * module only runs them — so the layering stays one-directional.
  *
  * The whole module is optional and never fatal:
  *   - built without FLY_GPU it compiles to stubs that report "unavailable";
- *   - built with FLY_GPU it still reports "unavailable" at runtime if no EGL
- *     device, context or program can be created.
+ *   - built with FLY_GPU it still reports "unavailable" at runtime if no
+ *     device, context, entry point or program can be had.
  * Callers must treat an unavailable GPU as "use the CPU renderer", so a
  * machine with no GL driver behaves exactly as it did before. */
 #ifndef FLY_GPU_H

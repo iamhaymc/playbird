@@ -137,12 +137,36 @@ def lib_sources():
     return [SRC / f"{m}.c" for m in MODULES if (SRC / f"{m}.c").exists()]
 
 
-# GPU acceleration (fly_gpu) is enabled when a headless EGL + GLES 3.1 toolchain
-# is actually present, and silently skipped otherwise, so the build stays
-# dependency-free on machines without GL. Probe by compiling+linking for real
-# rather than sniffing header paths, so a broken/partial install is caught here.
-GPU_LDFLAGS = ["-lEGL", "-lGLESv2"]
-_GPU_PROBE = """
+# GPU acceleration (fly_gpu) is enabled when the platform's headless GL
+# toolchain is actually present, and silently skipped otherwise, so the build
+# stays dependency-free on machines without GL. Probe by compiling+linking for
+# real rather than sniffing header paths, so a broken/partial install is caught
+# here.
+#
+# Windows has no EGL, and needs no GL SDK either: the context comes from WGL and
+# opengl32.dll, both of which ship with the OS, and fly_gpu.c declares the entry
+# points it calls and loads them at runtime. So the probe there only has to
+# prove the toolchain links against the system libraries.
+if os.name == "nt":
+    GPU_BACKEND = "headless WGL + OpenGL 4.3 (ES 3.1 shaders)"
+    GPU_TOOLCHAIN = "WGL/OpenGL"
+    GPU_LDFLAGS = ["-lopengl32", "-lgdi32", "-luser32"]
+    _GPU_PROBE = """
+#include <windows.h>
+int main(void){
+    void *fn[4];
+    fn[0] = (void *)(FARPROC)wglCreateContext;  /* opengl32 */
+    fn[1] = (void *)(FARPROC)wglGetProcAddress; /* opengl32 */
+    fn[2] = (void *)(FARPROC)ChoosePixelFormat; /* gdi32 */
+    fn[3] = (void *)(FARPROC)DefWindowProcA;    /* user32 */
+    return fn[0] && fn[1] && fn[2] && fn[3] ? 0 : 1;
+}
+"""
+else:
+    GPU_BACKEND = "headless EGL + GLES 3.1"
+    GPU_TOOLCHAIN = "EGL/GLES"
+    GPU_LDFLAGS = ["-lEGL", "-lGLESv2"]
+    _GPU_PROBE = """
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES3/gl31.h>
@@ -481,24 +505,16 @@ def main():
     cflags += ["-O2"] if args.release else ["-g", "-O2"]
     # Point test binaries at the RID output dir for their scratch files.
     cflags += [f"-DFLY_BUILD_DIR=\"build/{RID}\""]
-    # The windowed backend on Windows cannot share a link with the headless
-    # GPU path: TIGR's GL backend defines its own gl* function-pointer globals
-    # (loaded through wglGetProcAddress) and libGLESv2.dll.a exports the same
-    # names as import stubs, so the two collide at link time. The windowed
-    # loop blits the CPU-rendered frame into TIGR's buffer anyway, so the
-    # headless EGL path is pointless there; force the CPU renderer (the
-    # documented reference and fallback). Linux/macOS TIGR calls real GL
-    # functions directly, so those builds keep the GPU path.
-    gpu_off = args.no_gpu or (args.window and os.name == "nt")
-    if not gpu_off and gpu_supported():
+    # Every platform that has a GPU renders on it, the windowed build on
+    # Windows included: fly_gpu.c keeps its GL entry points file-static there,
+    # so nothing collides with the global gl* pointers TIGR's Windows backend
+    # defines. --no-gpu is the only thing that forces the CPU renderer.
+    if not args.no_gpu and gpu_supported():
         cflags += ["-DFLY_GPU=1"]
         ldflags += GPU_LDFLAGS
-        print("gpu: enabled (headless EGL + GLES 3.1)")
+        print("gpu: enabled (%s)" % GPU_BACKEND)
     else:
-        reason = ("--no-gpu" if args.no_gpu else
-                  "windowed build on Windows (TIGR owns the GL symbols)"
-                  if args.window and os.name == "nt" else
-                  "no EGL/GLES toolchain")
+        reason = "--no-gpu" if args.no_gpu else "no %s toolchain" % GPU_TOOLCHAIN
         print("gpu: disabled (%s) - using the CPU renderer" % reason)
     if not args.no_threads and threads_supported():
         cflags += ["-DFLY_THREADS=1", *THREAD_CFLAGS]
@@ -518,7 +534,8 @@ def main():
         elif sys.platform.startswith("linux"):
             ldflags += ["-lGLU", "-lGL", "-lX11"]
         else:
-            ldflags += ["-lopengl32", "-lgdi32"]
+            # the GPU path may already have linked these (it shares opengl32)
+            ldflags += [f for f in ("-lopengl32", "-lgdi32") if f not in ldflags]
 
     exe_suffix = ".exe" if os.name == "nt" else ""
     lib_objs = objects(lib_sources(), cflags)

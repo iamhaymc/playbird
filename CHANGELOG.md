@@ -3038,8 +3038,10 @@ what the terrain and the water already did. Over closed canopy at 1280x720 that
 and a memo on the scatter's ground lookups take the object build from 88 ms to
 53; `render.cost` prints it.
 
-Frames render on the GPU wherever one exists, through headless OpenGL ES 3.1 /
-GLSL over a surfaceless EGL context — no window, no display server, so the
+Frames render on the GPU wherever one exists, on every platform, through
+headless OpenGL ES 3.1 / GLSL — a surfaceless EGL context on POSIX, a WGL
+context on a hidden one-pixel window on Windows, where there is no EGL. Either
+way there is no window to look at and no display server to need, so the
 headless CLI and the test suite are accelerated too. The scalar C renderer is
 kept as the reference implementation and the fallback, and the two are gated
 against each other by the `gpu.frame` aspect.
@@ -3758,8 +3760,8 @@ only supersampling touches it. The `render.aa` aspect measures both.
 
 The GPU path is never a hard dependency. `./make.py --no-gpu` builds without it
 (the module compiles to stubs), and a build *with* it still falls back at
-runtime when no EGL device, context or shader can be created. `build/<rid>/fly99 new`
-prints the active backend:
+runtime when no device, context, entry point or shader can be had.
+`build/<rid>/fly99 new` prints the active backend:
 
 ```sh
 ./make.py --no-gpu        # build the CPU renderer only
@@ -6287,15 +6289,47 @@ anyone touches the same seams.
   completes the bare names to loadable paths. The `airframes` gallery aspect
   had been silently finding no airframes at all.
 
-- **`--window` cannot link against the headless GPU path on Windows.** TIGR's
-  GL backend defines its own `gl*` function-pointer globals, loaded through
-  `wglGetProcAddress`, and `libGLESv2.dll.a` exports the same names as import
-  stubs, so the two collide at link time with a wall of `multiple definition`
-  errors. Linux and macOS TIGR call real GL functions directly, so only the
-  Windows build is affected. The windowed loop blits the CPU-rendered frame
-  into TIGR's buffer anyway, so the headless EGL path is pointless there:
-  `make.py` now forces the CPU renderer (the documented reference and
-  fallback) whenever `--window` is combined with a Windows build, and says so
-  in the `gpu:` line. `python make.py --window` then links with just
-  `-lopengl32 -lgdi32` and `fly99 play` opens a realtime window.
+- **Windows renders on the GPU too, over WGL rather than EGL.** There is no
+  EGL on Windows, and the first pass at the platform answered that by building
+  it CPU-only: a `--window` build could not even link against the headless GPU
+  path, because TIGR's Windows GL backend defines its own *global* `gl*`
+  function-pointer variables and `libGLESv2.dll.a` exports the same names as
+  import stubs, so the two collided with a wall of `multiple definition`
+  errors. That made a machine with a real GPU render its frames on one CPU —
+  the fallback, not the renderer — and `--no-gpu` is meant to be the only
+  thing that does that.
+
+  So `fly_gpu.c` has a second context half. Windows gets a WGL context on a
+  hidden one-pixel window (a GL context needs a device context, and a device
+  context needs a window; nothing is ever drawn into it, every frame goes to a
+  framebuffer object), asked for as a 4.5 then 4.3 core profile through
+  `wglCreateContextAttribsARB`, falling back to the context `wglCreateContext`
+  gives. Every entry point past OpenGL 1.1 is loaded through
+  `wglGetProcAddress` into a table the module declares itself, which settles
+  both problems at once: no GL SDK has to be installed (`opengl32.dll` ships
+  with the OS, and the LLVM toolchain `setup.ps1` installs carries no GL
+  headers), and every name has internal linkage, so TIGR's globals have
+  nothing to collide with. `python make.py --window` now links the windowed
+  backend and the GPU renderer together.
+
+  Linking was not the whole of it. A windowed build shares one thread with
+  TIGR, and TIGR's backends take the thread's GL context for the length of a
+  window update and hand it back *released* — `wglMakeCurrent(NULL, NULL)` on
+  Windows, `glXMakeCurrent(NULL, 0, 0)` on X11 — so the renderer's next frame
+  would issue its GL calls with no context current and quietly draw nothing.
+  Every entry point into `fly_gpu` now asks `gpu_live()` rather than reading
+  `G.ready`, and that takes the context back when something else has taken it;
+  it is a pointer compare when the context is already ours. The X11 half of
+  that had been wrong for as long as `--window` has been able to build with
+  the GPU path.
+
+  The shaders did not change: they are ES 3.1 on both platforms, which a
+  desktop driver compiles through `ARB_ES3_1_compatibility`. That is a driver
+  promise rather than a given, so `fly_gpu_init` compiles the smallest shader
+  in the dialect before it reports a GPU at all — a driver that cannot take it
+  (or one stuck on the GDI software renderer, where the loader finds no
+  `glCreateShader` to begin with) fails init with a message and the CPU
+  renderer takes the frame, which is what the fallback is for. `gpu.service`
+  holds both ends: a live service builds an ES 3.1 program, and an unavailable
+  one says why.
 
